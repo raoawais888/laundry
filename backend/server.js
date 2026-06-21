@@ -130,7 +130,7 @@ app.get('/health', (req, res) => {
 ========================================== */
 
 // // Authentication
-// app.use('/api/auth', require('./src/routes/auth.routes'));
+ app.use('/api/auth', require('./src/routes/auth.routes'));
 
 // // Customer
 // app.use('/api/users', require('./src/routes/user.routes'));
