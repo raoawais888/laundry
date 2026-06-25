@@ -448,3 +448,322 @@
     text-align: left;
   }
 }
+
+
+
+
+ @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;600&display=swap');
+
+        .lume-card {
+          width: 390px;
+          min-height: 400px;
+          background-color: #2B35AF;
+          border-radius: 40px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 48px 32px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+          font-family: 'Inter', sans-serif;
+        }
+
+        .lume-logo-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          margin-bottom: 36px;
+          line-height: 1;
+        }
+
+        .lume-script {
+          font-family: 'Dancing Script', cursive;
+          font-size: 52px;
+          color: #ffffff;
+          line-height: 1.05;
+          letter-spacing: -1px;
+          margin-bottom: -6px;
+        }
+
+        .lume-bottom-row {
+          display: flex;
+          align-items: center;
+          gap: 0px;
+        }
+
+        .lume-icon-row {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .lume-laundry-text {
+          font-family: 'Inter', sans-serif;
+          font-size: 38px;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: -0.5px;
+        }
+
+        .lume-svg-icon {
+          opacity: 0.9;
+          margin: 0 2px;
+        }
+
+        .lume-tagline {
+          color: rgba(255,255,255,0.85);
+          font-size: 16px;
+          font-weight: 400;
+          text-align: center;
+          line-height: 1.5;
+          margin-bottom: 20px;
+          letter-spacing: 0.1px;
+        }
+
+        .lume-divider {
+          width: 160px;
+          height: 1.5px;
+          background: rgba(255,255,255,0.35);
+          border-radius: 2px;
+          margin-bottom: 36px;
+        }
+
+        .lume-btn {
+          background: #2DC9A0;
+          color: #ffffff;
+          font-size: 16px;
+          font-weight: 700;
+          border: none;
+          border-radius: 50px;
+          padding: 18px 80px;
+          cursor: pointer;
+          letter-spacing: 0.3px;
+          transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+          box-shadow: 0 6px 24px rgba(45,201,160,0.35);
+          outline: none;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .lume-btn:hover {
+          background: #25b48e;
+          transform: translateY(-2px);
+          box-shadow: 0 10px 32px rgba(45,201,160,0.45);
+        }
+
+        .lume-btn:active {
+          transform: translateY(0px);
+          box-shadow: 0 4px 16px rgba(45,201,160,0.3);
+        }
+        .get-started {
+          margin: 20px 0px;
+          width: 100% !important;
+        }
+        .get-started .form-control{
+          width: 100% !important;
+        }
+        .get-started label{
+          color: #FFF;
+        }
+
+        .lume-login-card {
+          width: 390px;
+          min-height: 844px;
+          background: #F0F0F5;
+          border-radius: 40px;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+          font-family: 'Inter', sans-serif;
+          position: relative;
+        }
+
+        /* ── Header white section ── */
+        .lume-header {
+          background: #ffffff;
+          padding: 44px 28px 28px;
+        }
+
+        .lume-logo {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          line-height: 1;
+        }
+        .lume-script {
+          font-family: 'Dancing Script', cursive;
+          font-size: 36px;
+          color: #2B35AF;
+          line-height: 1.05;
+          margin-bottom: -4px;
+        }
+        .lume-row2 {
+          display: flex;
+          align-items: center;
+        }
+        .lume-wordmark {
+          font-family: 'Inter', sans-serif;
+          font-size: 26px;
+          font-weight: 700;
+          color: #2B35AF;
+          letter-spacing: -0.3px;
+        }
+
+        /* ── Blue welcome banner ── */
+        .lume-banner {
+          background: #2B35AF;
+          padding: 28px 28px 52px;
+          margin-top: 0;
+        }
+        .lume-banner h1 {
+          font-size: 28px;
+          font-weight: 700;
+          color: #ffffff;
+          margin: 0 0 6px;
+          letter-spacing: -0.3px;
+        }
+        .lume-banner p {
+          font-size: 14px;
+          color: rgba(255,255,255,0.82);
+          margin: 0;
+          font-weight: 400;
+        }
+
+        /* ── White form panel ── */
+        .lume-form-panel {
+          background: #ffffff;
+          border-radius: 24px 24px 0 0;
+          margin-top: -24px;
+          flex: 1;
+          padding: 32px 24px 24px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .lume-label {
+          font-size: 13px;
+          font-weight: 700;
+          color: #1a1a2e;
+          margin-bottom: 10px;
+          display: block;
+          letter-spacing: 0.1px;
+        }
+
+        .lume-input {
+          width: 100%;
+          border: 1.5px solid #E0E0E8;
+          border-radius: 10px;
+          padding: 14px 16px;
+          font-size: 15px;
+          font-family: 'Inter', sans-serif;
+          color: #aaaaaa;
+          outline: none;
+          transition: border-color 0.2s;
+          background: #ffffff;
+          box-sizing: border-box;
+          margin-bottom: 18px;
+        }
+        .lume-input:focus {
+          border-color: #2B35AF;
+          color: #1a1a2e;
+        }
+
+        .lume-otp-btn {
+          width: 100%;
+          background: #2B35AF;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 700;
+          font-family: 'Inter', sans-serif;
+          border: none;
+          border-radius: 12px;
+          padding: 16px;
+          cursor: pointer;
+          letter-spacing: 0.2px;
+          transition: background 0.15s, transform 0.15s;
+          margin-bottom: 20px;
+        }
+        .lume-otp-btn:hover { background: #222fa0; transform: translateY(-1px); }
+        .lume-otp-btn:active { transform: translateY(0); }
+
+        /* ── OR divider ── */
+        .lume-or {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 18px;
+        }
+        .lume-or-line {
+          flex: 1;
+          height: 1px;
+          background: #E0E0E8;
+        }
+        .lume-or span {
+          font-size: 13px;
+          color: #aaaaaa;
+          font-weight: 400;
+          white-space: nowrap;
+        }
+
+        /* ── Social buttons ── */
+        .lume-social-btn {
+          width: 100%;
+          background: #ffffff;
+          border: 1.5px solid #E0E0E8;
+          border-radius: 12px;
+          padding: 14px 16px;
+          font-size: 15px;
+          font-weight: 500;
+          font-family: 'Inter', sans-serif;
+          color: #1a1a2e;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          transition: background 0.15s, border-color 0.15s;
+          margin-bottom: 12px;
+        }
+        .lume-social-btn:hover { background: #F5F5FA; border-color: #c8c8d8; }
+
+        .lume-signup {
+          text-align: right;
+          font-size: 13px;
+          color: #888888;
+          margin-top: 4px;
+          margin-bottom: 0;
+        }
+        .lume-signup a {
+          color: #2B35AF;
+          font-weight: 600;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        /* ── Footer ── */
+        .lume-footer {
+          background: #F0F0F5;
+          text-align: center;
+          padding: 20px 24px 32px;
+          font-size: 12.5px;
+          color: #888888;
+        }
+        .lume-footer a {
+          color: #2B35AF;
+          font-weight: 600;
+          text-decoration: none;
+        }
+
+        /* Apple icon gradient */
+        .apple-icon {
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          background: linear-gradient(135deg, #6BBCF7 0%, #3B6FE8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
