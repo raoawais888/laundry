@@ -569,7 +569,6 @@
 
         .lume-login-card {
           width: 390px;
-          min-height: 844px;
           background: #F0F0F5;
           border-radius: 40px;
           overflow: hidden;
@@ -767,3 +766,368 @@
           justify-content: center;
           flex-shrink: 0;
         }
+
+        /* ===========================================================
+   VerifyOtp.css
+   Extends the existing Lume Laundry design tokens.
+   Drop this alongside your existing login styles —
+   .lume-header / .lume-logo / .lume-label / .lume-otp-btn
+   are reused as-is from the login screen.
+   =========================================================== */
+
+.lume-otp-screen {
+  min-height: 100vh;
+  background: #eef0f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Blue banner, curved bottom-right like the screenshot ── */
+.lume-banner--curved {
+  background: #2B35AF;
+  padding: 28px 24px 36px;
+  position: relative;
+  color: #ffffff;
+}
+
+.lume-banner--curved h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.lume-banner--curved p {
+  font-size: 14px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* the curved white cutout in the bottom-right corner of the banner */
+.lume-banner--curved::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  width: 40px;
+  height: 40px;
+  background: #eef0f5;
+  border-top-left-radius: 40px;
+}
+
+/* ── OTP panel ── */
+.lume-otp-panel {
+  padding: 28px 24px 0;
+}
+
+.lume-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 14px;
+}
+
+.lume-otp-inputs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.lume-otp-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  border: 1.5px solid #d3d7e3;
+  background: #ffffff;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2B35AF;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lume-otp-box:focus {
+  border-color: #2B35AF;
+  box-shadow: 0 0 0 3px rgba(43, 53, 175, 0.15);
+}
+
+.lume-otp-box--filled {
+  border-color: #2B35AF;
+  background: #f0f1fb;
+}
+
+.lume-resend {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.lume-resend a {
+  color: #2B35AF;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Bottom action, pinned like the screenshot ── */
+.lume-bottom-action {
+  margin-top: auto;
+  padding: 24px;
+}
+
+/* lume-otp-btn reused from login screen, shown here for completeness
+   in case it isn't already globally defined */
+.lume-otp-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #2B35AF;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.lume-otp-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lume-otp-btn:not(:disabled):hover {
+  background: #232b8f;
+}
+
+/* ===========================================================
+   ProfileSetup.css
+   Extends the existing Lume Laundry design tokens.
+   Requires Tabler Icons webfont for the header/eye/edit icons:
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+   =========================================================== */
+
+.lume-profile-screen {
+  min-height: 100vh;
+  background: #eef0f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Welcome header, deep blue gradient ── */
+.lume-welcome-header {
+  background: linear-gradient(135deg, #2B35AF, #181c63);
+  padding: 24px 20px 30px;
+  position: relative;
+  color: #ffffff;
+}
+
+.lume-welcome-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.lume-welcome-label {
+  font-size: 13px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.lume-welcome-name {
+  font-size: 21px;
+  font-weight: 700;
+  margin: 2px 0 0;
+  color: #ffffff;
+}
+
+.lume-welcome-sub {
+  font-size: 14px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lume-header-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.lume-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.lume-icon-btn--avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 18px;
+}
+
+/* the curved cutout in the bottom-right corner of the header */
+.lume-welcome-header::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  width: 36px;
+  height: 36px;
+  background: #eef0f5;
+  border-top-left-radius: 36px;
+}
+
+/* ── Avatar upload ── */
+.lume-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 28px 0 8px;
+}
+
+.lume-avatar-circle {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: #b9d4ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.lume-avatar-icon {
+  font-size: 50px;
+  color: #2B35AF;
+}
+
+.lume-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lume-avatar-edit {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2B35AF;
+  border: 2px solid #eef0f5;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+/* ── Form panel ── */
+.lume-profile-form {
+  padding: 12px 24px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lume-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 14px 0 6px;
+}
+
+.lume-label--muted {
+  color: #9aa0ab;
+}
+
+.lume-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid #d9dce4;
+  background: #ffffff;
+  font-size: 14px;
+  color: #1a1a2e;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lume-input::placeholder {
+  color: #aab0bb;
+}
+
+.lume-input:focus {
+  border-color: #2B35AF;
+  box-shadow: 0 0 0 3px rgba(43, 53, 175, 0.12);
+}
+
+.lume-input--disabled,
+.lume-input:disabled {
+  background: #e7e9ee;
+  color: #9aa0ab;
+  cursor: not-allowed;
+}
+
+.lume-input-wrap {
+  position: relative;
+}
+
+.lume-input-wrap .lume-input {
+  padding-right: 40px;
+}
+
+.lume-eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #9aa0ab;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* ── Bottom action ── */
+.lume-bottom-action {
+  margin-top: auto;
+  padding: 24px;
+}
+
+/* lume-otp-btn reused from the login/OTP screens — included here
+   in case it isn't already globally defined */
+.lume-otp-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #2B35AF;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.lume-otp-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lume-otp-btn:not(:disabled):hover {
+  background: #232b8f;
+}
