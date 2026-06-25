@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { sendOtp } from "../api";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
    const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
  const handleSendOtp = async () => {
     if (!phone.trim()) {
-      alert("Please enter your phone number.");
+      toast.error("Please enter your phone number.");
+      
       return;
     }
 
@@ -27,19 +31,16 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      alert(data.message || "OTP sent successfully.");
-
+      toast.success(data.message || "OTP sent successfully.");
+     
       // Example:
-      // navigate("/verify-otp", { state: { phone } });
+       navigate("/verify-otp", { state: { phone } });
 
     } catch (error) {
-      console.error(error);
+      toast.error(error);
+      
 
-      alert(
-        error.response?.data?.message ||
-          error.message ||
-          "Something went wrong."
-      );
+      
     } finally {
       setLoading(false);
     }

@@ -86,10 +86,10 @@ exports.sendOtp = async (req, res) => {
 // POST /api/v1/auth/verify-otp
 // ============================
 exports.verifyOtp = async (req, res) => {
-
   try {
-
     const { phone, otp } = req.body;
+
+    console.log("Request Body:", req.body);
 
     if (!phone || !otp) {
       return res.status(400).json({
@@ -104,12 +104,17 @@ exports.verifyOtp = async (req, res) => {
       isUsed: false,
     });
 
+    console.log("OTP Record:", otpRecord);
+
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
         message: "OTP not found",
       });
     }
+
+    console.log("Stored OTP:", otpRecord.otp);
+    console.log("Entered OTP:", otp);
 
     if (otpRecord.isExpired()) {
       return res.status(400).json({
@@ -126,100 +131,103 @@ exports.verifyOtp = async (req, res) => {
     }
 
     if (otpRecord.otp !== otp) {
-
       otpRecord.attempts++;
-
       await otpRecord.save();
 
       return res.status(400).json({
         success: false,
         message: "Invalid OTP",
       });
-
     }
 
     otpRecord.isUsed = true;
-
     await otpRecord.save();
+
+    console.log("OTP Verified");
 
     let user = await User.findOne({ phone });
 
-    if (!user) {
+    console.log("User:", user);
 
+    if (!user) {
       user = await User.create({
         phone,
         isPhoneVerified: true,
       });
-
     } else {
-
       user.isPhoneVerified = true;
       user.lastLoginAt = new Date();
-
       await user.save();
-
     }
 
     const token = generateToken(user._id);
-
+console.log(token);
     return res.json({
       success: true,
       token,
       user: user.toSafeObject(),
     });
-
   } catch (err) {
-
     console.error(err);
 
     return res.status(500).json({
       success: false,
       message: err.message,
     });
-
   }
-
 };
 
 // ============================
 // POST /api/v1/auth/setup-profile
 // ============================
 exports.setupProfile = async (req, res) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            email,
+            password
+        } = req.body;
 
-  try {
+        const user = await User.findById(req.user.id);
 
-    const { name, email } = req.body;
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
 
-    const user = await User.findById(req.user.id);
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.name = `${firstName} ${lastName}`;
+        user.email = email;
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        if (req.file) {
+            user.avatar = `/uploads/profile/${req.file.filename}`;
+        }
+
+        user.isProfileComplete = true;
+
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: user.toSafeObject()
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
-
-    user.name = name;
-    user.email = email;
-    user.isProfileComplete = true;
-
-    await user.save();
-
-    return res.json({
-      success: true,
-      message: "Profile updated successfully",
-      user: user.toSafeObject(),
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    return res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-
-  }
-
 };
