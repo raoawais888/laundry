@@ -4,16 +4,22 @@ import { IconPin, IconCalendar } from "../../components/Icons";
 import { Screen, BackHeader, BottomNav } from "../Layout";
 import { styles } from "./Styles.js";
 import { createOrder } from "../../api";
-import { parseSlotString } from "../Parseslot.js";
+import AddressAutocompleteInput from "../../components/Addressautocompleteinput.jsx";
+import SlotPicker from "../../components/Slotpicker.jsx";
 
 export default function CreateOrderScreen({ onNavigate, onBack, onConfirmOrder, initialServiceId }) {
   const [serviceId, setServiceId] = useState(initialServiceId || "wash-fold");
+
   const [pickupAddress, setPickupAddress] = useState("42 Park St, Wyndham Vale");
-  const [pickupSlot, setPickupSlot] = useState("Mon 23 Jun · 9:00–11:00 AM");
+  const [pickupCoords, setPickupCoords] = useState(null); // { lat, lon } once a suggestion is picked
+  const [pickupSlot, setPickupSlot] = useState({ date: "", slotStart: "", slotEnd: "", slotLabel: "" });
   const [pickupNotes, setPickupNotes] = useState("");
+
   const [deliveryAddress, setDeliveryAddress] = useState("42 Park St, Wyndham Vale");
-  const [deliverySlot, setDeliverySlot] = useState("Mon 23 Jun · 9:00–11:00 AM");
+  const [deliveryCoords, setDeliveryCoords] = useState(null);
+  const [deliverySlot, setDeliverySlot] = useState({ date: "", slotStart: "", slotEnd: "", slotLabel: "" });
   const [deliveryNotes, setDeliveryNotes] = useState("");
+
   const [weight, setWeight] = useState(8);
   const [bagsText, setBagsText] = useState("");
   const [fragile, setFragile] = useState(true);
@@ -49,7 +55,23 @@ export default function CreateOrderScreen({ onNavigate, onBack, onConfirmOrder, 
     });
   }
 
+  function validateBeforeSubmit() {
+    if (!pickupSlot.date || !pickupSlot.slotStart || !pickupSlot.slotEnd) {
+      return "Please select a pickup date and time.";
+    }
+    if (!deliverySlot.date || !deliverySlot.slotStart || !deliverySlot.slotEnd) {
+      return "Please select a delivery date and time.";
+    }
+    return null;
+  }
+
   async function handleConfirm() {
+    const validationError = validateBeforeSubmit();
+    if (validationError) {
+      setSubmitError(validationError);
+      return;
+    }
+
     setSubmitError("");
     setIsSubmitting(true);
 
@@ -62,13 +84,26 @@ export default function CreateOrderScreen({ onNavigate, onBack, onConfirmOrder, 
         pickupAddress: {
           fullAddress: pickupAddress,
           deliveryInstructions: pickupNotes || undefined,
+          // Only include location if the user actually picked a real
+          // suggestion (has real coordinates) — matches the backend's
+          // geo-cleanup hook, which strips anything else anyway, but
+          // sending a clean payload from the start avoids relying on that.
+          ...(pickupCoords
+            ? { location: { type: "Point", coordinates: [pickupCoords.lon, pickupCoords.lat] } }
+            : {}),
         },
         deliveryAddress: {
           fullAddress: deliveryAddress,
           deliveryInstructions: deliveryNotes || undefined,
+          ...(deliveryCoords
+            ? { location: { type: "Point", coordinates: [deliveryCoords.lon, deliveryCoords.lat] } }
+            : {}),
         },
-        pickupSlot: parseSlotString(pickupSlot),
-        deliverySlot: parseSlotString(deliverySlot),
+        // pickupSlot/deliverySlot already come out of SlotPicker in the
+        // exact { date, slotStart, slotEnd, slotLabel } shape the backend
+        // wants — no more string-parsing needed.
+        pickupSlot,
+        deliverySlot,
         items: [
           {
             // NOTE: service.backendId is a placeholder ObjectId-shaped string
@@ -132,22 +167,21 @@ export default function CreateOrderScreen({ onNavigate, onBack, onConfirmOrder, 
           <h3 style={styles.cardTitle}>Pickup Details</h3>
           <div style={styles.inputRow}>
             <IconPin />
-            <input
+            <AddressAutocompleteInput
               style={styles.inputField}
               value={pickupAddress}
-              onChange={(e) => setPickupAddress(e.target.value)}
+              onChange={(val) => {
+                setPickupAddress(val);
+                setPickupCoords(null); // typing manually invalidates the picked coords
+              }}
+              onSelect={({ fullAddress, lat, lon }) => {
+                setPickupAddress(fullAddress);
+                setPickupCoords({ lat, lon });
+              }}
               placeholder="Pickup address"
             />
           </div>
-          <div style={styles.inputRow}>
-            <IconCalendar />
-            <input
-              style={styles.inputField}
-              value={pickupSlot}
-              onChange={(e) => setPickupSlot(e.target.value)}
-              placeholder="Pickup date & time"
-            />
-          </div>
+          <SlotPicker value={pickupSlot} onChange={setPickupSlot} />
           <textarea
             style={styles.textarea}
             placeholder="Pick notes any instrucion"
@@ -161,22 +195,21 @@ export default function CreateOrderScreen({ onNavigate, onBack, onConfirmOrder, 
           <h3 style={styles.cardTitle}>Delivery Details</h3>
           <div style={styles.inputRow}>
             <IconPin />
-            <input
+            <AddressAutocompleteInput
               style={styles.inputField}
               value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
+              onChange={(val) => {
+                setDeliveryAddress(val);
+                setDeliveryCoords(null);
+              }}
+              onSelect={({ fullAddress, lat, lon }) => {
+                setDeliveryAddress(fullAddress);
+                setDeliveryCoords({ lat, lon });
+              }}
               placeholder="Delivery address"
             />
           </div>
-          <div style={styles.inputRow}>
-            <IconCalendar />
-            <input
-              style={styles.inputField}
-              value={deliverySlot}
-              onChange={(e) => setDeliverySlot(e.target.value)}
-              placeholder="Delivery date & time"
-            />
-          </div>
+          <SlotPicker value={deliverySlot} onChange={setDeliverySlot} />
           <textarea
             style={styles.textarea}
             placeholder="Delivery notes any instructions"
