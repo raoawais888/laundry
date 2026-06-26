@@ -14,7 +14,7 @@ import Started from "./pages/Started.jsx";
 import Profile from "./pages/Profile.jsx";
 import VerifyEmailotp from "./pages/VerifyEmailOTP.jsx";
 import AddAddress from "./pages/AddAddress.jsx";
-import UserHome from "./pages/UserHome.jsx";
+import LaundryApp from "./pages/Laundryapp.jsx";
 import CreateOrder from "./pages/Createorder.jsx";
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
       <Route path="/Profile" element={<Profile />} />
       <Route path="/verify-email-otp" element={<VerifyEmailotp />} />
       <Route path="/user-adress" element={<AddAddress />} />
-      <Route path="/user-home" element={<UserHome />} />
+      <Route path="/user-home" element={<LaundryApp />} />
       <Route path="/create-order" element={<CreateOrder />} />
     </Routes>
    

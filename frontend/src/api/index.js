@@ -79,11 +79,46 @@ export const getServiceById = (id) =>
 // ORDERS
 // ─────────────────────────────────────────────────────────────
 
-export const createOrder = (data) =>
-  api.post("/orders", data);
+// Order fields that are objects/arrays need to be JSON-stringified when sent
+// as multipart/form-data (forms can't carry nested objects directly — every
+// field is either a string or a file). The backend's parseMultipartOrderFields
+// middleware JSON.parses these back into real objects before validation runs.
+const JSON_FIELDS = ["pickupAddress", "deliveryAddress", "pickupSlot", "deliverySlot", "items"];
+
+/**
+ * Creates an order. If `photos` (an array of File objects) is non-empty,
+ * sends a single multipart/form-data request with both the order fields and
+ * the photo files together — matching the backend's order-create route,
+ * which accepts photos directly via upload.array("photos", 8). If there are
+ * no photos, sends plain JSON instead (also supported by the same route).
+ *
+ * @param {Object} data - order fields (pickupAddress, items, etc.)
+ * @param {File[]} [photos] - image files to attach, max 8
+ */
+export const createOrder = (data, photos = []) => {
+  if (!photos || photos.length === 0) {
+    return api.post("/orders/order-create", data);
+  }
+
+  const formData = new FormData();
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
+    const serialized = JSON_FIELDS.includes(key) ? JSON.stringify(value) : String(value);
+    formData.append(key, serialized);
+  }
+
+  for (const file of photos) {
+    formData.append("photos", file);
+  }
+
+  return api.post("/orders/order-create", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 
 export const getMyOrders = () =>
-  api.get("/orders");
+  api.get("/orders/order-create"); // GET on the same path, per the backend route
 
 export const getOrderById = (id) =>
   api.get(`/orders/${id}`);
@@ -91,11 +126,11 @@ export const getOrderById = (id) =>
 export const trackOrder = (orderNumber) =>
   api.get(`/orders/track/${orderNumber}`);
 
-export const cancelOrder = (id) =>
-  api.patch(`/orders/${id}/cancel`);
+export const cancelOrder = (id, reason) =>
+  api.patch(`/orders/${id}/cancel`, { reason });
 
 export const rateOrder = (id, data) =>
-  api.post(`/orders/${id}/rate`, data);
+  api.patch(`/orders/${id}/review`, data);
 
 // ─────────────────────────────────────────────────────────────
 // PAYMENTS

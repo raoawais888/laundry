@@ -247,24 +247,92 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ customer: 1, status: 1, createdAt: -1 });
 orderSchema.index({ rider: 1, status: 1 });
 orderSchema.index({ status: 1, createdAt: -1 });
-orderSchema.index({ paymentStatus: 1 });
+// paymentStatus already has index: true on the field above — no need to redeclare it here.
 orderSchema.index({ "pickupSlot.date": 1, status: 1 });
 orderSchema.index({ autoCancelAt: 1, status: 1 }); // for cron
-orderSchema.index({ pickupAddress: "2dsphere" });
-orderSchema.index({ deliveryAddress: "2dsphere" });
+// 2dsphere indexes must target the actual GeoJSON field, not the parent
+// address object — indexing "pickupAddress" itself would fail when Mongo
+// tries to build the index, since it expects a { type, coordinates } shape.
+orderSchema.index({ "pickupAddress.location": "2dsphere" });
+orderSchema.index({ "deliveryAddress.location": "2dsphere" });
+
+// ── Geo Coordinate Cleanup ─────────────────────────────────────────────────────
+//
+// addressSnapshotSchema declares a nested `location: { type, coordinates }`
+// path. Mongoose always materializes that whole sub-object the moment
+// pickupAddress/deliveryAddress exists — even when nobody ever supplies
+// location data — because `coordinates` is an array field, and array fields
+// default to `[]` rather than staying undefined. The result is a document
+// shaped like `location: { coordinates: [] }`, which looks "present" to
+// MongoDB but isn't valid GeoJSON (a Point needs exactly 2 numbers).
+//
+// MongoDB's 2dsphere index silently skips documents where the indexed field
+// is genuinely missing, null, or an empty array — but `{ coordinates: [] }`
+// is none of those from Mongo's point of view; it's a malformed Point, and
+// inserting it throws "Can't extract geo keys" / "unknown GeoJSON type"
+// instead of being skipped. So the fix has to happen before the document
+// reaches Mongo: strip `location` entirely on any address that doesn't have
+// two real numbers in `coordinates`, so the field is truly absent rather
+// than present-but-broken.
+function hasValidPointCoordinates(location) {
+  return (
+    !!location &&
+    Array.isArray(location.coordinates) &&
+    location.coordinates.length === 2 &&
+    location.coordinates.every((n) => typeof n === "number" && !Number.isNaN(n))
+  );
+}
 
 // ── Order Number Auto-generation ──────────────────────────────────────────────
-orderSchema.pre("save", async function (next) {
+//
+// NOTE: countDocuments()-based numbering has a race condition under concurrent
+// writes (two orders saved at once can read the same count and collide on the
+// unique index). We retry on duplicate-key error instead of trusting the count
+// to be correct, which keeps it simple without adding a separate counters
+// collection. If you expect heavy concurrent order creation, switch this to an
+// atomic counter document with findOneAndUpdate({ $inc: { seq: 1 } }).
+orderSchema.pre("save", async function () {
+  // ── Order number ──────────────────────────────────────────────────────
   if (!this.orderNumber) {
     const count = await this.constructor.countDocuments();
     const year = new Date().getFullYear();
     this.orderNumber = `LUM-${year}-${String(count + 1).padStart(5, "0")}`;
   }
-  // Push to history on status change
-  if (this.isModified("status")) {
+
+  // ── Status history ────────────────────────────────────────────────────
+  // this.isNew covers first-time creation: isModified("status") is false
+  // on a brand-new document when status was never explicitly passed in
+  // (it only got there via the schema's `default: "pending"`, which
+  // Mongoose doesn't count as a modification) — so without this.isNew,
+  // the very first status entry would silently never get logged.
+  if (this.isNew || this.isModified("status")) {
     this.statusHistory.push({ status: this.status, timestamp: new Date() });
   }
-  next();
+
+  // ── Geo coordinate cleanup ─────────────────────────────────────────────
+  // Must run AFTER the statusHistory.push() above, not before — a freshly
+  // pushed entry has no location set, and Mongoose still materializes
+  // `location: { coordinates: [] }` on it the same way it does for
+  // pickupAddress/deliveryAddress (see comment above hasValidPointCoordinates).
+  // Cleaning up before the push would miss this exact entry.
+  for (const field of ["pickupAddress", "deliveryAddress"]) {
+    const addr = this[field];
+    if (addr && !hasValidPointCoordinates(addr.location)) {
+      addr.location = undefined;
+    }
+  }
+  for (const entry of this.statusHistory) {
+    if (entry && !hasValidPointCoordinates(entry.location)) {
+      entry.location = undefined;
+    }
+  }
+
+  // No next() here — an async pre-hook in modern Mongoose (7+/8+) is
+  // promise-based: Mongoose awaits the returned promise instead of passing
+  // a real `next` callback into the function. Calling next() in an async
+  // hook throws "next is not a function" because next is undefined here.
+  // Throwing (or letting countDocuments() reject) is how you signal an
+  // error instead of calling next(err).
 });
 
 // ── Virtuals ──────────────────────────────────────────────────────────────────
