@@ -47,10 +47,11 @@ app.use(globalLimiter);
 // ── Routes (uncomment as you build each one) ──────────────────────────────────
 app.use("/api/v1/auth", authLimiter);
  app.use("/api/v1/auth",            require("./src/routes/auth.routes.js"));
+  app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
     app.use("/api/v1",       require("./src/routes/address.routes"));
 // app.use("/api/v1/services",        require("./routes/service.routes"));
-// app.use("/api/v1/orders",          require("./routes/order.routes"));
+
 // app.use("/api/v1/payments",        require("./routes/payment.routes"));
 // app.use("/api/v1/wallet",          require("./routes/wallet.routes"));
 // app.use("/api/v1/coupons",         require("./routes/coupon.routes"));
