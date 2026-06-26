@@ -1131,3 +1131,236 @@
 .lume-otp-btn:not(:disabled):hover {
   background: #232b8f;
 }
+
+
+.addr-screen {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: #1a1a2e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.addr-card {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  background: #eef1f6;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.addr-header {
+  position: relative;
+  background: linear-gradient(135deg, #3b46c8 0%, #14163f 100%);
+  padding: 28px 20px 44px;
+  color: #fff;
+}
+
+.addr-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.addr-welcome-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.addr-welcome-name {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.addr-header-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.addr-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.addr-icon-btn--avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.addr-page-title {
+  margin: 18px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* ── Curved body that overlaps the header ── */
+.addr-body {
+  position: relative;
+  background: #eef1f6;
+  border-top-right-radius: 32px;
+  margin-top: -22px;
+  padding: 26px 20px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.addr-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 16px 0 6px;
+}
+
+.addr-label:first-child {
+  margin-top: 0;
+}
+
+.addr-input,
+.addr-select,
+.addr-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f4f5f9;
+  border: 1px solid #e3e5ec;
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-size: 14px;
+  color: #1a1a2e;
+  outline: none;
+  font-family: inherit;
+}
+
+.addr-input::placeholder,
+.addr-textarea::placeholder {
+  color: #9aa0ad;
+}
+
+.addr-input:focus,
+.addr-select:focus,
+.addr-textarea:focus {
+  border-color: #3b46c8;
+}
+
+.addr-input:disabled,
+.addr-select:disabled,
+.addr-textarea:disabled {
+  opacity: 0.7;
+}
+
+.addr-textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+/* ── Select / dropdown ── */
+.addr-select-wrap {
+  position: relative;
+}
+
+.addr-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.addr-select:invalid,
+.addr-select option[value=""] {
+  color: #9aa0ad;
+}
+
+.addr-select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7180;
+  pointer-events: none;
+  font-size: 16px;
+}
+
+/* ── GPS field ── */
+.addr-gps-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.addr-gps-icon {
+  position: absolute;
+  left: 14px;
+  color: #3b46c8;
+  font-size: 16px;
+}
+
+.addr-input--gps {
+  padding-left: 38px;
+  padding-right: 52px;
+}
+
+.addr-gps-btn {
+  position: absolute;
+  right: 6px;
+  background: #3b46c8;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.addr-gps-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Save button ── */
+.addr-save-btn {
+  margin-top: 26px;
+  width: 100%;
+  background: #2f5bea;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addr-save-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ── Add another address link ── */
+.addr-add-another-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.addr-add-another {
+  color: #2f5bea;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}

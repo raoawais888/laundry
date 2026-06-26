@@ -4,16 +4,33 @@ const Address = require("../models/Address");
 // POST /api/addresses
 exports.addAddress = async (req, res) => {
   try {
-    const { unitNumber, streetAddress, suburb, state,
-            postcode, deliveryInstruction, gpsLocation } = req.body;
+    const {
+      unitNumber, streetAddress, suburb, state,
+      postcode, deliveryInstruction, gpsLocation
+    } = req.body;
 
-    // If this is first address, make it default
+    // Parse "lat, lng" string → GeoJSON { type: "Point", coordinates: [lng, lat] }
+    let parsedGpsLocation;
+    if (gpsLocation) {
+      const [lat, lng] = gpsLocation.split(',').map(v => parseFloat(v.trim()));
+
+      if (isNaN(lat) || isNaN(lng)) {
+        return res.status(400).json({ message: "Invalid gpsLocation format. Expected 'lat, lng'" });
+      }
+
+      parsedGpsLocation = {
+        type: 'Point',
+        coordinates: [lng, lat], // GeoJSON is [lng, lat] — NOT [lat, lng]
+      };
+    }
+
     const existing = await Address.countDocuments({ user: req.user.id, isDeleted: false });
 
     const address = await Address.create({
       user: req.user.id,
       unitNumber, streetAddress, suburb,
-      state, postcode, deliveryInstruction, gpsLocation,
+      state, postcode, deliveryInstruction,
+      gpsLocation: parsedGpsLocation,
       isDefault: existing === 0,
     });
 
