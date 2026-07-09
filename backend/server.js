@@ -47,6 +47,7 @@ app.use(globalLimiter);
 // ── Routes (uncomment as you build each one) ──────────────────────────────────
 app.use("/api/v1/auth", authLimiter);
  app.use("/api/v1/auth",            require("./src/routes/auth.routes.js"));
+ app.use("/api/v1/rider", require("./src/routes/rider.routes"));
   app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
     app.use("/api/v1",       require("./src/routes/address.routes"));

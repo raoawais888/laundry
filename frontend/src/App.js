@@ -16,24 +16,39 @@ import VerifyEmailotp from "./pages/VerifyEmailOTP.jsx";
 import AddAddress from "./pages/AddAddress.jsx";
 import LaundryApp from "./pages/Laundryapp.jsx";
 import CreateOrder from "./pages/Createorder.jsx";
+import RiderStarted from "./pages/RiderStarted.jsx";
+import RiderLogin from "./pages/RiderLogin.jsx";
+import RiderVerifyOtp from "./pages/RiderVerifyOTP.jsx";
+import RiderProfileSetup from "./pages/RiderProfileSetup.jsx";
+import RiderIdVerification from "./pages/RiderIdVerification.jsx";
+import RiderWorkRights from "./pages/RiderWorkRights.jsx";
+import RiderPoliceCheck from "./pages/RiderPoliceCheck.jsx";
 
 function App() {
   return (
     <div className="App">
-       <ToastContainer />
-       <Routes>
-      <Route path="/app" element={<Lumelaundrysplash />} />
-      <Route path="/Started" element={<Started />} />
-       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/verify-otp" element={<VerifyOtp />} />
-      <Route path="/Profile" element={<Profile />} />
-      <Route path="/verify-email-otp" element={<VerifyEmailotp />} />
-      <Route path="/user-adress" element={<AddAddress />} />
-      <Route path="/user-home" element={<LaundryApp />} />
-      <Route path="/create-order" element={<CreateOrder />} />
-    </Routes>
-   
+      <ToastContainer />
+      <Routes>
+        <Route path="/app" element={<Lumelaundrysplash />} />
+        <Route path="/customer-login" element={<Started />} />
+        <Route path="/rider-started" element={<RiderStarted />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/rider-login" element={<RiderLogin />} />
+        <Route path="/rider/verify-otp" element={<RiderVerifyOtp />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/verify-email-otp" element={<VerifyEmailotp />} />
+        <Route path="/user-adress" element={<AddAddress />} />
+        <Route path="/user-home" element={<LaundryApp />} />
+        <Route path="/create-order" element={<CreateOrder />} />
+
+        {/* ── Rider onboarding ── */}
+        <Route path="/rider/profile-setup" element={<RiderProfileSetup />} />
+        <Route path="/rider/id-verification" element={<RiderIdVerification />} />
+        <Route path="/rider/work-rights" element={<RiderWorkRights />} />
+        <Route path="/rider/police-check" element={<RiderPoliceCheck />} />
+      </Routes>
     </div>
   );
 }
