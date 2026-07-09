@@ -82,7 +82,7 @@ const VerifyEmailotp = ({  onVerified }) => {
       localStorage.setItem("user", JSON.stringify(data.user));
     }
 
-    toast.success(data.message || "Number verified successfully.");
+    toast.success("Email verified successfully.");
  // Example:
       navigate("/user-adress");
     if (onVerified) {

@@ -6,7 +6,7 @@ const otpSchema = new mongoose.Schema(
     otp: { type: String, required: true },
     type: {
       type: String,
-      enum: ["login", "verify_phone", "forgot_device"],
+      enum: ["login", "verify_phone", "forgot_device","rider_login"],
       default: "login",
     },
     attempts: { type: Number, default: 0, max: 5 },

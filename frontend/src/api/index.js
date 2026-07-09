@@ -193,4 +193,90 @@ export const trackRider = (orderId) =>
 export const getDashboard = () =>
   api.get("/admin/dashboard");
 
+
+
+// ─────────────────────────────────────────────────────────────
+// RIDER AUTH
+// ─────────────────────────────────────────────────────────────
+
+export const riderSendOtp = (phone) =>
+  api.post("/rider/auth/send-otp", { phone });
+
+export const riderVerifyOtp = (phone, otp) =>
+  api.post("/rider/auth/verify-otp", { phone, otp });
+
+export const riderSetupProfile = (data) =>
+  api.post("/rider/profile/setup", data);
+
+// ─────────────────────────────────────────────────────────────
+// RIDER VERIFICATION (onboarding)
+// ─────────────────────────────────────────────────────────────
+
+export const riderUploadId = (formData) =>
+  api.post("/rider/verification/id", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderUploadWorkRights = (formData) =>
+  api.post("/rider/verification/work-rights", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderUploadPoliceCheck = (formData) =>
+  api.post("/rider/verification/police-check", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderUploadVehicle = (formData) =>
+  api.post("/rider/verification/vehicle", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderGetVerificationStatus = () =>
+  api.get("/rider/verification/status");
+
+// ─────────────────────────────────────────────────────────────
+// RIDER DASHBOARD & ORDERS
+// ─────────────────────────────────────────────────────────────
+
+export const riderGetDashboard = () =>
+  api.get("/rider/dashboard");
+
+export const riderToggleOnline = (data) =>
+  api.patch("/rider/status", data);
+
+export const riderAcceptOrder = (id) =>
+  api.post(`/rider/orders/${id}/accept`);
+
+export const riderSkipOrder = (id) =>
+  api.post(`/rider/orders/${id}/skip`);
+
+export const riderConfirmPickup = (id, formData) =>
+  api.post(`/rider/orders/${id}/confirm-pickup`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderConfirmDropoff = (id, formData) =>
+  api.post(`/rider/orders/${id}/confirm-dropoff`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+export const riderConfirmDelivery = (id, formData) =>
+  api.post(`/rider/orders/${id}/confirm-delivery`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+// ─────────────────────────────────────────────────────────────
+// RIDER EARNINGS & PROFILE
+// ─────────────────────────────────────────────────────────────
+
+export const riderGetEarnings = () =>
+  api.get("/rider/earnings");
+
+export const riderWithdrawEarnings = () =>
+  api.post("/rider/earnings/withdraw");
+
+export const riderGetProfile = () =>
+  api.get("/rider/profile");
+
 export default api;
