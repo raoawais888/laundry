@@ -88,6 +88,9 @@ app.use("/api/v1/rider",           require("./src/routes/rider.routes"));
 app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
 app.use("/api/v1",                 require("./src/routes/address.routes"));
+
+app.use("/api/v1/admin/auth", authLimiter); // reuse your existing auth rate limiter
+app.use("/api/v1/admin/auth", require("./src/routes/admin.auth.routes.js"));
 // app.use("/api/v1/services",        require("./routes/service.routes"));
 
 // app.use("/api/v1/payments",        require("./routes/payment.routes"));

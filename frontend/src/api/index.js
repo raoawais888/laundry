@@ -19,11 +19,21 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 // ─────────────────────────────────────────────────────────────
-// AUTH
+// ADMIN AUTH
 // ─────────────────────────────────────────────────────────────
 
+export const adminLogin = (email, password) =>
+  api.post("/admin/auth/login", { email, password });
+
+export const adminForgotPassword = (email) =>
+  api.post("/admin/auth/forgot-password", { email });
+
+export const adminResetPassword = (email, code, newPassword) =>
+  api.post("/admin/auth/reset-password", { email, code, newPassword });
+
+export const adminGetMe = () =>
+  api.get("/admin/auth/me");
 // ─────────────────────────────────────────────────────────────
 // AUTH
 // ─────────────────────────────────────────────────────────────
@@ -40,6 +50,12 @@ export const firebaseLogin = (idToken) =>
 export const setupProfile = (data) =>
   api.post("/auth/setup-profile", data);
 
+
+export const verifyEmail = (code) =>
+  api.post("/auth/verify-email", { code });
+
+export const resendEmailCode = () =>
+  api.post("/auth/resend-email-code");
 // ─────────────────────────────────────────────────────────────
 // USERS
 // ─────────────────────────────────────────────────────────────

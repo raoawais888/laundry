@@ -50,6 +50,9 @@ prisma/dev.db-journal
 # Uploads (optional)
 uploads/
 
+# AWS / Firebase Credentials
+serviceAccountKey.json
+firebase-adminsdk.json
 
 # SSL Certificates
 *.pem

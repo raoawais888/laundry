@@ -126,7 +126,8 @@ const Profile = ({ user, contactNumber, onSaved }) => {
       } else {
         // FIX: useNavigate was imported but never used — now actually wired up
        // Example:
-       navigate("/verify-email-otp", { state: { trimmedEmail } });
+      //  navigate("/verify-email-otp", { state: { trimmedEmail } });
+      navigate("/user-adress");
       }
     } catch (error) {
       // FIX: read the backend's message from error.response.data.message (axios),

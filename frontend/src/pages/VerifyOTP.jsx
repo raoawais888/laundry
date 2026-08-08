@@ -99,7 +99,7 @@ const VerifyOtp = ({ onVerified }) => {
 
       // Two-scenario routing
       if (data.isProfileComplete) {
-        navigate("/dashboard");      // existing user
+        navigate("/user-home");      // existing user
         console.log("existing user");
       } else {
         navigate("/profile");        // first-time user → setup profile

@@ -6,5 +6,7 @@ const AuthController = require("../controllers/auth.controller.js");
 
 router.post("/firebase-login", AuthController.firebaseLogin);
 router.post("/setup-profile", auth, upload.single("avatar"), AuthController.setupProfile);
+router.post("/verify-email", auth, AuthController.verifyEmail);
+router.post("/resend-email-code", auth, AuthController.resendEmailCode);
 
 module.exports = router;
