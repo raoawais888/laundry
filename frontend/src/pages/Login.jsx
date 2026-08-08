@@ -1,50 +1,68 @@
 import { useState } from "react";
-import { sendOtp } from "../api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const Login = () => {
   const navigate = useNavigate();
-   const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
- const handleSendOtp = async () => {
-    if (!phone.trim()) {
+
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
+    }
+    return window.recaptchaVerifier;
+  };
+
+  const handleSendOtp = async () => {
+    const trimmed = phone.trim();
+
+    if (!trimmed) {
       toast.error("Please enter your phone number.");
-      
+      return;
+    }
+
+    // Firebase needs E.164 format: +61412345678
+    if (!/^\+\d{8,15}$/.test(trimmed)) {
+      toast.error("Enter number with country code, e.g. +61412345678");
       return;
     }
 
     try {
       setLoading(true);
 
-      const { data } = await sendOtp(phone);
+      const appVerifier = setupRecaptcha();
+      const confirmationResult = await signInWithPhoneNumber(
+        auth,
+        trimmed,
+        appVerifier
+      );
 
-      console.log("OTP Response:", data);
+      // Save confirmation so VerifyOtp can call .confirm()
+      window.confirmationResult = confirmationResult;
 
-      // If backend returns token
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
-      // If backend returns user
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
-
-      toast.success(data.message || "OTP sent successfully.");
-     
-      // Example:
-       navigate("/verify-otp", { state: { phone } });
-
+      toast.success("OTP sent successfully.");
+      navigate("/verify-otp", { state: { phone: trimmed } });
     } catch (error) {
-      toast.error(error);
-      
+      console.error(error);
+      toast.error(error.message || "Failed to send OTP.");
 
-      
+      // Reset recaptcha so the user can retry
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", background: "#1a1a2e" }}>
@@ -89,19 +107,18 @@ const Login = () => {
             <input
               className="lume-input"
               type="tel"
-              placeholder="+61 4XXXXX XXX"
+              placeholder="+61 4XXXX XXXX"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               disabled={loading}
             />
 
- <button className="lume-otp-btn"
-        onClick={handleSendOtp}
-        disabled={loading}
-      >
-        {loading ? "Sending..." : "Continue with OTP"}
-      </button>
-            
+            <button className="lume-otp-btn" onClick={handleSendOtp} disabled={loading}>
+              {loading ? "Sending..." : "Continue with OTP"}
+            </button>
+
+            {/* Invisible reCAPTCHA mount point — required by Firebase */}
+            <div id="recaptcha-container"></div>
 
             <div className="lume-or">
               <div className="lume-or-line" />
@@ -126,12 +143,12 @@ const Login = () => {
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
+                </svg>
               Google
             </button>
 
             <p className="lume-signup">
-              Don't have account ? <a href="#">Sing Up here</a>
+              Don't have account ? <a href="#">Sign Up here</a>
             </p>
           </div>
 

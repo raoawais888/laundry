@@ -1,18 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TIMELINE_STEPS, RIDER } from "../Constants";
 import { Star } from "../../components/Icons";
 import { Screen, BottomNav } from "../Layout";
 import { styles } from "./Styles";
+import { socket } from "../../socket";
+
+// Maps a backend order status to a timeline step index
+const STATUS_TO_STEP = {
+  pending: 0,
+  available: 0,
+  accepted: 2,      // rider assigned + arriving
+  picked_up: 3,
+  dropped_off: 4,
+  delivered: 5,
+};
 
 export default function LiveTrackingScreen({ order, onNavigate }) {
-  const [stepIndex, setStepIndex] = useState(2); // "arriving" by default, matches reference
+  // Seed from the order's current status if present, else "arriving"
+  const initialStep = order?.status != null && STATUS_TO_STEP[order.status] != null
+    ? STATUS_TO_STEP[order.status]
+    : 2;
 
+  const [stepIndex, setStepIndex] = useState(initialStep);
+  const [rider, setRider] = useState({
+    name: order?.rider?.name || RIDER.name,
+    photo: order?.rider?.avatar || RIDER.photo,
+    rating: order?.rider?.rating || RIDER.rating,
+    vehicle: order?.rider?.vehicle || RIDER.vehicle,
+  });
+
+  const orderId = order?.orderNumber || order?.id || "LM-20482";
+  const mongoId = order?._id || order?.id;
+  const reachedDelivery = stepIndex === TIMELINE_STEPS.length - 1;
+
+  // Dev fallback: tapping the map still advances one step manually
   function advance() {
     setStepIndex((i) => Math.min(i + 1, TIMELINE_STEPS.length - 1));
   }
 
-  const orderId = order?.orderNumber || order?.id || "LM-20482";
-  const reachedDelivery = stepIndex === TIMELINE_STEPS.length - 1;
+  // ── Socket.io: live status updates from the rider's progress ──
+  useEffect(() => {
+    if (!mongoId) return;
+
+    socket.connect();
+    socket.emit("order:subscribe", mongoId);
+
+    const onStatus = ({ status, rider: riderInfo }) => {
+      const step = STATUS_TO_STEP[status];
+      if (step != null) {
+        // Only ever move forward, never backward
+        setStepIndex((current) => Math.max(current, step));
+      }
+      if (riderInfo) {
+        setRider((prev) => ({
+          ...prev,
+          name: riderInfo.name || prev.name,
+          photo: riderInfo.avatar || prev.photo,
+        }));
+      }
+    };
+
+    socket.on("order:status", onStatus);
+
+    return () => {
+      socket.off("order:status", onStatus);
+      socket.emit("order:unsubscribe", mongoId);
+      socket.disconnect();
+    };
+  }, [mongoId]);
 
   return (
     <Screen>
@@ -60,15 +115,15 @@ export default function LiveTrackingScreen({ order, onNavigate }) {
         {/* Rider card */}
         <div style={{ padding: "16px 20px 0" }}>
           <div style={styles.riderCardRow}>
-            <img src={RIDER.photo} alt={RIDER.name} style={styles.riderPhoto} />
+            <img src={rider.photo} alt={rider.name} style={styles.riderPhoto} />
             <div>
-              <p style={styles.riderName}>{RIDER.name}</p>
+              <p style={styles.riderName}>{rider.name}</p>
               <div style={{ display: "flex", gap: 2, marginBottom: 2 }}>
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} filled={i < RIDER.rating} size={14} />
+                  <Star key={i} filled={i < rider.rating} size={14} />
                 ))}
               </div>
-              <p style={styles.riderVehicle}>{RIDER.vehicle}</p>
+              <p style={styles.riderVehicle}>{rider.vehicle}</p>
             </div>
           </div>
         </div>

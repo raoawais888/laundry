@@ -13,6 +13,7 @@ router.post("/auth/send-otp", AuthCtrl.sendOtp);
 router.post("/auth/verify-otp", AuthCtrl.verifyOtp);
 router.post("/profile/setup", auth, upload.single("avatar"), AuthCtrl.setupProfile);
 
+console.log("DashCtrl methods:", Object.keys(DashCtrl));
 // ── Verification (onboarding docs) ──
 router.post(
   "/verification/id",

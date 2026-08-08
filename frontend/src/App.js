@@ -23,8 +23,29 @@ import RiderProfileSetup from "./pages/RiderProfileSetup.jsx";
 import RiderIdVerification from "./pages/RiderIdVerification.jsx";
 import RiderWorkRights from "./pages/RiderWorkRights.jsx";
 import RiderPoliceCheck from "./pages/RiderPoliceCheck.jsx";
+import RiderVehicleDetails from "./pages/RiderVehicleDetails.jsx";
+import RiderPendingApproval from "./pages/RiderPendingApproval.jsx";
+import RiderDashboard from "./pages/RiderDashboard.jsx";
+import RiderConfirmPickup from "./pages/RiderConfirmPickup.jsx";
+import RiderLaundryDropoff from "./pages/RiderLaundryDropoff.jsx";
+import RiderConfirmDelivery from "./pages/RiderConfirmDelivery.jsx";
+import RiderProfile from "./pages/RiderProfile.jsx";
+import RiderEarnings from "./pages/RiderEarnings.jsx";
+
+import RiderTabBar from "./components/RiderTabBar";
 
 function App() {
+
+  const riderComponents = {
+  RiderProfileSetup, RiderIdVerification, RiderWorkRights, RiderPoliceCheck,
+  RiderVehicleDetails, RiderPendingApproval, RiderDashboard, RiderConfirmPickup,
+  RiderLaundryDropoff, RiderConfirmDelivery, RiderProfile, RiderEarnings,
+};
+Object.entries(riderComponents).forEach(([name, comp]) => {
+  console.log(name, "→", typeof comp, comp && comp.$$typeof ? "(object!)" : "");
+});
+// then in the loop:
+console.log("RiderTabBar →", typeof RiderTabBar);
   return (
     <div className="App">
       <ToastContainer />
@@ -48,6 +69,14 @@ function App() {
         <Route path="/rider/id-verification" element={<RiderIdVerification />} />
         <Route path="/rider/work-rights" element={<RiderWorkRights />} />
         <Route path="/rider/police-check" element={<RiderPoliceCheck />} />
+<Route path="/rider/vehicle-details" element={<RiderVehicleDetails />} />
+<Route path="/rider/pending-approval" element={<RiderPendingApproval />} />
+<Route path="/rider/dashboard" element={<RiderDashboard />} />
+<Route path="/rider/confirm-pickup/:id" element={<RiderConfirmPickup />} />
+<Route path="/rider/laundry-dropoff/:id" element={<RiderLaundryDropoff />} />
+<Route path="/rider/confirm-delivery/:id" element={<RiderConfirmDelivery />} />
+<Route path="/rider/profile" element={<RiderProfile />} />
+<Route path="/rider/earnings" element={<RiderEarnings />} />
       </Routes>
     </div>
   );
