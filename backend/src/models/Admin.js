@@ -49,6 +49,11 @@ const adminSchema = new mongoose.Schema(
         expiresAt: Date,
       },
     ],
+
+    // ── Forgot-password reset code (added) ──
+    resetCode: { type: String, select: false },
+    resetCodeExpires: { type: Date, select: false },
+    resetCodeAttempts: { type: Number, default: 0, select: false },
   },
   { timestamps: true }
 );
@@ -65,6 +70,21 @@ adminSchema.methods.comparePassword = function (plain) {
 
 adminSchema.methods.hasPermission = function (perm) {
   return this.role === "super_admin" || this.permissions.includes(perm);
+};
+
+// ── Safe object for API responses (added) ──
+adminSchema.methods.toSafeObject = function () {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    phone: this.phone,
+    avatar: this.avatar,
+    role: this.role,
+    permissions: this.permissions,
+    isActive: this.isActive,
+    lastLoginAt: this.lastLoginAt,
+  };
 };
 
 module.exports = mongoose.model("Admin", adminSchema);
