@@ -24,11 +24,18 @@ api.interceptors.request.use(
 // AUTH
 // ─────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────────────────────
+
 export const sendOtp = (phone) =>
   api.post("/auth/send-otp", { phone });
 
 export const verifyOtp = (phone, otp) =>
   api.post("/auth/verify-otp", { phone, otp });
+
+export const firebaseLogin = (idToken) =>
+  api.post("/auth/firebase-login", { idToken });
 
 export const setupProfile = (data) =>
   api.post("/auth/setup-profile", data);

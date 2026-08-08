@@ -6,6 +6,7 @@ const filePath = (req, field) =>
   req.files?.[field]?.[0] ? `/uploads/orders/${req.files[field][0].filename}` : undefined;
 
 // PATCH /api/v1/rider/status  (Image 6 — Online/Offline toggle)
+// PATCH /api/v1/rider/status
 exports.toggleOnline = async (req, res) => {
   try {
     const { isOnline, lat, lng } = req.body;

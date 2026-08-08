@@ -65,31 +65,25 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     uploadedBy: "customer",
   }));
 
-  const order = await Order.create({
-    customer: req.user._id,
-    pickupAddress,
-    deliveryAddress,
-    pickupSlot,
-    deliverySlot,
-    items,
-    estimatedWeight,
-    numberOfBags,
-    isFragile,
-    specialInstructions,
-    photos,
-    isExpress: !!isExpress,
-    paymentMethod,
-    pricing,
-    status: "pending",
-    // give the customer a window to cancel for free / let a cron auto-cancel
-    // unconfirmed orders — adjust to match your actual acceptance flow
-    autoCancelAt: new Date(Date.now() + 30 * 60 * 1000), // 30 min
-  });
+const order = await Order.create({ /* ...as before... */ status: initialStatus });
 
-  res.status(201).json({
-    success: true,
-    data: { order },
+// Notify online riders — only if the order is actually available to them
+if (order.status === "available") {
+  const io = req.app.get("io");
+  io.to("riders").emit("order:new", {
+    _id: order._id,
+    orderNumber: order.orderNumber,
+    customer: { name: req.user.name, address: order.pickupAddress?.fullAddress },
+    payout: order.payout,
+    estimatedWeight: order.estimatedWeight,
+    serviceType: order.items?.[0]?.serviceName || "Wash & Fold",
+    distanceKm: order.distanceKm,
+    status: order.status,
   });
+}
+
+res.status(201).json({ success: true, data: { order } });
+
 });
 
 /**

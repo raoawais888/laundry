@@ -3,6 +3,7 @@ import { riderGetDashboard, riderToggleOnline, riderAcceptOrder, riderSkipOrder 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import RiderTabBar from "../components/RiderTabBar";
+import { socket } from "../socket";
 
 const RiderDashboard = () => {
   const navigate = useNavigate();
@@ -23,29 +24,78 @@ const RiderDashboard = () => {
 
   useEffect(() => { loadDashboard(); }, []);
 
-  const handleToggle = async () => {
-    const next = !isOnline;
-    setIsOnline(next); // optimistic
-    try {
-      const payload = { isOnline: next };
+  // ── Socket.io: live new-order pushes ──
+  useEffect(() => {
+    const rider = JSON.parse(localStorage.getItem("rider") || "{}");
+
+    socket.connect();
+    socket.emit("rider:online", rider._id);
+
+    // A customer just created an order → prepend it to the list
+    const onNewOrder = (order) => {
+      setDashboard((d) => {
+        // Guard against duplicates if the same order arrives twice
+        if (d.availablePickups.some((o) => o._id === order._id)) return d;
+        return { ...d, availablePickups: [order, ...d.availablePickups] };
+      });
+      toast.info("New pickup available!");
+    };
+
+    // Another rider accepted an order → remove it from this list
+    const onOrderTaken = ({ orderId }) => {
+      setDashboard((d) => ({
+        ...d,
+        availablePickups: d.availablePickups.filter((o) => o._id !== orderId),
+      }));
+    };
+
+    socket.on("order:new", onNewOrder);
+    socket.on("order:taken", onOrderTaken);
+
+    return () => {
+      socket.off("order:new", onNewOrder);
+      socket.off("order:taken", onOrderTaken);
+      socket.emit("rider:offline", rider._id);
+      socket.disconnect();
+    };
+  }, []);
+
+ const handleToggle = async () => {
+  const next = !isOnline;
+  setIsOnline(next); // optimistic
+
+  const rider = JSON.parse(localStorage.getItem("rider") || "{}");
+  socket.emit(next ? "rider:online" : "rider:offline", rider._id);
+
+  // Resolve location first (if going online), then make a single awaited call
+  const getPayload = () =>
+    new Promise((resolve) => {
+      const base = { isOnline: next };
       if (next && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-          await riderToggleOnline({ ...payload, lat: pos.coords.latitude, lng: pos.coords.longitude });
-        }, async () => { await riderToggleOnline(payload); });
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ ...base, lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve(base) // location denied → send without coords
+        );
       } else {
-        await riderToggleOnline(payload);
+        resolve(base);
       }
-    } catch (error) {
-      setIsOnline(!next); // revert on failure
-      toast.error(error.response?.data?.message || "Could not update status.");
-    }
-  };
+    });
+
+  try {
+    const payload = await getPayload();
+    await riderToggleOnline(payload);
+  } catch (error) {
+    setIsOnline(!next); // revert on failure
+    toast.error(error.response?.data?.message || "Could not update status.");
+  }
+};
 
   const handleAccept = async (id) => {
     try {
-      await riderAcceptOrder(id);
+      const { data } = await riderAcceptOrder(id);
       toast.success("Pickup accepted.");
-      navigate(`/rider/confirm-pickup/${id}`);
+      // Pass the order forward so Confirm Pickup has its data on arrival
+      navigate(`/rider/confirm-pickup/${id}`, { state: { order: data.order } });
     } catch (error) {
       toast.error(error.response?.data?.message || "Could not accept order.");
       loadDashboard(); // refresh — it may have been taken
@@ -79,7 +129,8 @@ const RiderDashboard = () => {
           </button>
 
           <div className="rider-dash-icons">
-            <button className="rider-dash-icon" aria-label="Sign out">
+            <button className="rider-dash-icon" aria-label="Sign out"
+              onClick={() => { localStorage.clear(); navigate("/rider-login"); }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M14 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2v-2M10 12h11m0 0l-3-3m3 3l-3 3" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -125,10 +176,12 @@ const RiderDashboard = () => {
                 <h3 className="rider-pickup-name">{order.customer?.name}</h3>
                 <span className="rider-pickup-payout">${order.payout}</span>
               </div>
-              <p className="rider-pickup-detail">{order.customer?.address}</p>
+              <p className="rider-pickup-detail">
+                {order.customer?.address || order.pickupAddress?.fullAddress}
+              </p>
               {order.distanceKm != null && <p className="rider-pickup-detail">{order.distanceKm} km away</p>}
               <p className="rider-pickup-detail">
-                {order.serviceType} · ~{order.estimatedWeightKg || 8}kg
+                {order.serviceType || order.items?.[0]?.serviceName || "Wash & Fold"} · ~{order.estimatedWeight || order.estimatedWeightKg || 8}kg
               </p>
               <div className="rider-pickup-actions">
                 <button className="rider-pickup-accept" onClick={() => handleAccept(order._id)}>Accept</button>

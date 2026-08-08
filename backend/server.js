@@ -7,13 +7,49 @@ const morgan = require("morgan");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
+const { Server } = require("socket.io");
 
 const connectDB = require("./src/config/db.js");
 
-
-
 const app = express();
 const server = http.createServer(app);
+
+// ── Socket.io ─────────────────────────────────────────────────────────────────
+const io = new Server(server, {
+  cors: { origin: process.env.CLIENT_URL, credentials: true },
+});
+
+// Make io reachable inside controllers via req.app.get("io")
+app.set("io", io);
+
+io.on("connection", (socket) => {
+  console.log("🔌 Socket connected:", socket.id);
+
+  // Rider comes online → join the shared riders room + their own room
+  socket.on("rider:online", (riderId) => {
+    socket.join("riders");
+    if (riderId) socket.join(`rider:${riderId}`);
+    console.log(`Rider ${riderId} joined riders room`);
+  });
+
+  socket.on("rider:offline", (riderId) => {
+    socket.leave("riders");
+    if (riderId) socket.leave(`rider:${riderId}`);
+  });
+
+  // Customer opens an order → join that order's room for live tracking
+  socket.on("order:subscribe", (orderId) => {
+    if (orderId) socket.join(`order:${orderId}`);
+  });
+
+  socket.on("order:unsubscribe", (orderId) => {
+    if (orderId) socket.leave(`order:${orderId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔌 Socket disconnected:", socket.id);
+  });
+});
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -46,11 +82,12 @@ app.use(globalLimiter);
 
 // ── Routes (uncomment as you build each one) ──────────────────────────────────
 app.use("/api/v1/auth", authLimiter);
- app.use("/api/v1/auth",            require("./src/routes/auth.routes.js"));
- app.use("/api/v1/rider", require("./src/routes/rider.routes"));
-  app.use("/api/v1/orders",          require("./src/routes/order.routes"));
+app.use("/api/v1/rider/auth", authLimiter);
+app.use("/api/v1/auth",            require("./src/routes/auth.routes.js"));
+app.use("/api/v1/rider",           require("./src/routes/rider.routes"));
+app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
-    app.use("/api/v1",       require("./src/routes/address.routes"));
+app.use("/api/v1",                 require("./src/routes/address.routes"));
 // app.use("/api/v1/services",        require("./routes/service.routes"));
 
 // app.use("/api/v1/payments",        require("./routes/payment.routes"));
@@ -58,7 +95,6 @@ app.use("/api/v1/auth", authLimiter);
 // app.use("/api/v1/coupons",         require("./routes/coupon.routes"));
 // app.use("/api/v1/reviews",         require("./routes/review.routes"));
 // app.use("/api/v1/notifications",   require("./routes/notification.routes"));
-// app.use("/api/v1/riders",          require("./routes/rider.routes"));
 // app.use("/api/v1/admin",           require("./routes/admin.routes"));
 
 // ── Health Check ──────────────────────────────────────────────────────────────
@@ -89,4 +125,4 @@ server.listen(PORT, () => {
   console.log(`📦 Environment: ${process.env.NODE_ENV}`);
 });
 
-module.exports = { app, server };
+module.exports = { app, server, io };

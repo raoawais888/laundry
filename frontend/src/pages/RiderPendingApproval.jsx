@@ -35,6 +35,7 @@ const RiderPendingApproval = () => {
 
   useEffect(() => {
     let active = true;
+
     const load = async () => {
       try {
         const { data } = await riderGetVerificationStatus();
@@ -48,10 +49,15 @@ const RiderPendingApproval = () => {
         toast.error(error.response?.data?.message || "Could not load status.");
       }
     };
+
     load();
     // Poll every 30s so the screen updates when an admin approves
     const interval = setInterval(load, 30000);
-    return () => { active = false; clearInterval(interval); };
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [navigate]);
 
   const v = status?.verification;
@@ -79,6 +85,7 @@ const RiderPendingApproval = () => {
         <div className="rider-card rider-pending-card">
           <h3 className="rider-card-title">Verification Status</h3>
           <StatusRow label="ID Check" status={v?.idCheck?.status} />
+          <StatusRow label="Work Rights" status={v?.workRights?.status} />
           <StatusRow label="Police Verification" status={v?.policeCheck?.status} />
           <StatusRow label="Vehicle Verification" status={v?.vehicleCheck?.status} />
         </div>
