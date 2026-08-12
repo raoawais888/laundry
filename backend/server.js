@@ -1,4 +1,5 @@
 require("dotenv").config();
+const fs = require("fs");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -10,6 +11,12 @@ const rateLimit = require("express-rate-limit");
 const { Server } = require("socket.io");
 
 const connectDB = require("./src/config/db.js");
+
+// multer's diskStorage doesn't create missing destination directories itself
+// — without this, the very first upload to either folder throws ENOENT.
+for (const dir of ["uploads/profile", "uploads/orders"]) {
+  fs.mkdirSync(dir, { recursive: true });
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -88,7 +95,7 @@ app.use("/api/v1/rider",           require("./src/routes/rider.routes"));
 app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
 app.use("/api/v1",                 require("./src/routes/address.routes"));
-// app.use("/api/v1/services",        require("./routes/service.routes"));
+app.use("/api/v1/services",        require("./src/routes/service.routes"));
 
 // app.use("/api/v1/payments",        require("./routes/payment.routes"));
 // app.use("/api/v1/wallet",          require("./routes/wallet.routes"));

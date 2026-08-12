@@ -49,19 +49,25 @@ const orderSchema = new mongoose.Schema(
     delivery: { type: Object },
 
     autoCancelAt: Date,
+
+    isDeleted: { type: Boolean, default: false },
+    isReviewed: { type: Boolean, default: false },
+    cancellationReason: { type: String },
+    cancelledBy: { type: String },
+    cancelledAt: { type: Date },
+    estimatedWeightKg: { type: Number },
   },
   { timestamps: true }
 );
 
 // Auto-generate orderNumber + a pickup OTP before saving
-orderSchema.pre("save", function (next) {
+orderSchema.pre("save", function () {
   if (!this.orderNumber) {
     this.orderNumber = `LM-${Date.now().toString().slice(-5)}`;
   }
   if (!this.pickupOtp) {
     this.pickupOtp = Math.floor(100000 + Math.random() * 900000).toString();
   }
-  next();
 });
 
 module.exports = mongoose.model("Order", orderSchema);

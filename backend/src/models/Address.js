@@ -16,7 +16,7 @@ const addressSchema = new mongoose.Schema(
     postcode:            { type: String, required: true },
     deliveryInstruction: { type: String },
     gpsLocation: {
-      type:        { type: String, enum: ["Point"], default: "Point" },
+      type:        { type: String, enum: ["Point"] },
       coordinates: { type: [Number] }, // [lng, lat]
     },
     isDefault: { type: Boolean, default: false },
