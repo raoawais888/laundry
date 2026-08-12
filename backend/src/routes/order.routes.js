@@ -26,6 +26,8 @@ router
     orderController.createOrder
   )
 
+router.get("/", orderController.getMyOrders);
+
 router
   .route("/:id")
   .get(orderController.getOrder)
