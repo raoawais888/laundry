@@ -3,7 +3,7 @@ const Order = require("../models/Order");
 const Earning = require("../models/Earning");
 
 const filePath = (req, field) =>
-  req.files?.[field]?.[0] ? `/uploads/orders/${req.files[field][0].filename}` : undefined;
+  req.files?.[field]?.[0] ? `/uploads/profile/${req.files[field][0].filename}` : undefined;
 
 // PATCH /api/v1/rider/status  (Image 6 — Online/Offline toggle)
 // PATCH /api/v1/rider/status
@@ -42,7 +42,10 @@ exports.getDashboard = async (req, res) => {
         { $group: { _id: null, total: { $sum: "$amount" } } },
       ]),
       Order.countDocuments({ rider: riderId, status: "delivered", "delivery.confirmedAt": { $gte: startOfToday } }),
-      Order.find({ status: "available" }).sort({ createdAt: -1 }).limit(20),
+      Order.find({ status: "available" })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("customer", "name firstName lastName"),
     ]);
 
     return res.json({
@@ -93,7 +96,7 @@ exports.confirmPickup = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid pickup OTP" });
     }
 
-    const photos = (req.files?.photos || []).map((f) => `/uploads/orders/${f.filename}`);
+    const photos = (req.files?.photos || []).map((f) => `/uploads/profile/${f.filename}`);
 
     order.status = "picked_up";
     order.pickup = {

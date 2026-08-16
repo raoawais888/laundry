@@ -28,7 +28,7 @@ const NON_CANCELLABLE_STATUSES = [
  * photo files under the "photos" field, handled by uploadOrderPhotos +
  * parseMultipartOrderFields middleware before this runs). Either way, by
  * the time this controller runs, req.body fields are real objects/numbers,
- * and req.files (if present) holds the Cloudinary upload results.
+ * and req.files (if present) holds the local disk upload results.
  */
 exports.createOrder = catchAsync(async (req, res, next) => {
     console.log(req.body);
@@ -54,18 +54,31 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     couponDiscount,
   });
 
-  // req.files is populated by multer-storage-cloudinary when the request
-  // was multipart/form-data with files attached. Each file object carries
-  // the Cloudinary upload result: `path` is the secure URL, `filename` is
-  // the Cloudinary public_id. If the request was plain JSON (no photos),
-  // req.files is undefined and photos is just an empty array.
+  // req.files is populated by multer's local disk storage when the request
+  // was multipart/form-data with files attached. If the request was plain
+  // JSON (no photos), req.files is undefined and photos is just an empty array.
   const photos = (req.files || []).map((file) => ({
-    url: file.path,
-    publicId: file.filename,
+    url: `/uploads/orders/${file.filename}`,
     uploadedBy: "customer",
   }));
 
-const order = await Order.create({ /* ...as before... */ status: initialStatus });
+const order = await Order.create({
+    customer: req.user._id,
+    pickupAddress,
+    deliveryAddress,
+    pickupSlot,
+    deliverySlot,
+    items,
+    estimatedWeight,
+    numberOfBags,
+    isFragile: !!isFragile,
+    specialInstructions,
+    isExpress: !!isExpress,
+    paymentMethod,
+    pricing,
+    photos,
+    status: "available",
+  });
 
 // Notify online riders — only if the order is actually available to them
 if (order.status === "available") {
@@ -203,8 +216,8 @@ exports.submitReview = catchAsync(async (req, res, next) => {
     return next(new AppError("Order not found.", 404));
   }
 
-  if (order.status !== "completed") {
-    return next(new AppError("Only completed orders can be reviewed.", 409));
+  if (order.status !== "delivered") {
+    return next(new AppError("Only delivered orders can be reviewed.", 409));
   }
 
   if (order.isReviewed) {
