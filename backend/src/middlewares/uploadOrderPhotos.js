@@ -1,16 +1,17 @@
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary-v2");
-const cloudinary = require("../config/cloudinary.js");
+const path = require("path");
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "orders",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    // unique-ish public_id per file so concurrent uploads from the same
-    // order never collide on Cloudinary's side
-    public_id: (req, file) =>
-      `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, "uploads/orders");
+  },
+
+  filename(req, file, cb) {
+    cb(
+      null,
+      Date.now() + "-" + Math.round(Math.random() * 1e9) +
+      path.extname(file.originalname)
+    );
   },
 });
 
@@ -26,7 +27,7 @@ module.exports = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB per file, same as your avatar upload
+    fileSize: 5 * 1024 * 1024, // 5MB per file
     files: 8,                  // matches the frontend's photos.slice(0, 8) cap
   },
 });
