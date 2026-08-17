@@ -1,17 +1,23 @@
 import React from "react";
+import { Link, NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
     <header className="navbar-wrap border-bottom bg-white sticky-top">
       <nav className="navbar navbar-expand-lg container py-2">
-        <a className="navbar-brand d-flex flex-column" href="/">
-          <span className="logo-font logo-top">Lume</span>
-          <span className="logo-font logo-bottom">
-            La
-            <i className="bi bi-handbag-fill logo-icon"></i>
-            ndry
-          </span>
-        </a>
+        <Link className="navbar-brand d-flex flex-column" to="/">
+<img
+  src="./logo.png"
+  alt="DoorLaundry logo"
+  style={{
+    width: "100%",
+    maxWidth: "273px",
+    height: "auto",
+    objectFit: "contain",
+    display: "block",
+  }}
+/>          
+        </Link>
 
         <button
           className="navbar-toggler"
@@ -28,31 +34,51 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="mainNav">
           <ul className="navbar-nav mx-auto gap-lg-4 text-center">
             <li className="nav-item">
-              <a className="nav-link active-link fw-medium" href="#home">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `nav-link fw-medium ${isActive ? "active-link" : "text-dark"}`
+                }
+              >
                 Home
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link fw-medium text-dark" href="#about">
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  `nav-link fw-medium ${isActive ? "active-link" : "text-dark"}`
+                }
+              >
                 About Us
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link fw-medium text-dark" href="#services">
+              <NavLink
+                to="/services"
+                className={({ isActive }) =>
+                  `nav-link fw-medium ${isActive ? "active-link" : "text-dark"}`
+                }
+              >
                 Our Services
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link fw-medium text-dark" href="#contact">
+              <NavLink
+                to="/contact"
+                className={({ isActive }) =>
+                  `nav-link fw-medium ${isActive ? "active-link" : "text-dark"}`
+                }
+              >
                 Contact
-              </a>
+              </NavLink>
             </li>
           </ul>
 
           <div className="d-flex justify-content-center mt-3 mt-lg-0">
-            <a href="#download" className="btn btn-download rounded-pill px-4 py-2">
+            <Link to="/download" className="btn btn-download rounded-pill px-4 py-2">
               Download App
-            </a>
+            </Link>
           </div>
         </div>
       </nav>

@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const admin = require("../config/firebaseAdmin");
+const { adminAuth } = require("../config/firebaseAdmin");
 const sendEmail = require("../utils/sendEmail");        // ← add back
 const generateOTP = require("../utils/OTPGenrator");    // ← add back
 
@@ -129,7 +129,7 @@ exports.firebaseLogin = async (req, res) => {
       return res.status(400).json({ success: false, message: "idToken is required" });
     }
 
-    const decoded = await admin.auth().verifyIdToken(idToken);
+    const decoded = await adminAuth.verifyIdToken(idToken);
     const phone = decoded.phone_number;
 
     if (!phone) {

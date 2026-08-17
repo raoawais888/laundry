@@ -2,7 +2,8 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: `${
-    process.env.REACT_APP_API_URL || "http://localhost:5000"
+    process.env.REACT_APP_API_URL || "https://doorlaundry-d928b43be380.herokuapp.com"
+    // process.env.REACT_APP_API_URL || "http://localhost:5000"
   }/api/v1`,
 });
 

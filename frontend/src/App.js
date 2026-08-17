@@ -9,6 +9,9 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import VerifyOtp from "./pages/VerifyOTP.jsx";
 import Home from "./pages/Home";
+import AboutUs from "./pages/AboutUs.jsx";
+import OurServices from "./pages/OurServices.jsx";
+import Contact from "./pages/Contact.jsx";
 import Lumelaundrysplash from "./pages/Lumelaundrysplash";
 import Started from "./pages/Started.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -35,25 +38,21 @@ import RiderEarnings from "./pages/RiderEarnings.jsx";
 import RiderTabBar from "./components/RiderTabBar";
 
 function App() {
-
-  const riderComponents = {
-  RiderProfileSetup, RiderIdVerification, RiderWorkRights, RiderPoliceCheck,
-  RiderVehicleDetails, RiderPendingApproval, RiderDashboard, RiderConfirmPickup,
-  RiderLaundryDropoff, RiderConfirmDelivery, RiderProfile, RiderEarnings,
-};
-Object.entries(riderComponents).forEach(([name, comp]) => {
-  console.log(name, "→", typeof comp, comp && comp.$$typeof ? "(object!)" : "");
-});
-// then in the loop:
-console.log("RiderTabBar →", typeof RiderTabBar);
   return (
     <div className="App">
       <ToastContainer />
       <Routes>
+        {/* ── Public site ── */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/services" element={<OurServices />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/download" element={<Lumelaundrysplash />} />
+
+        {/* ── App / auth ── */}
         <Route path="/app" element={<Lumelaundrysplash />} />
         <Route path="/customer-login" element={<Started />} />
         <Route path="/rider-started" element={<RiderStarted />} />
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/rider-login" element={<RiderLogin />} />
         <Route path="/rider/verify-otp" element={<RiderVerifyOtp />} />
@@ -69,14 +68,14 @@ console.log("RiderTabBar →", typeof RiderTabBar);
         <Route path="/rider/id-verification" element={<RiderIdVerification />} />
         <Route path="/rider/work-rights" element={<RiderWorkRights />} />
         <Route path="/rider/police-check" element={<RiderPoliceCheck />} />
-<Route path="/rider/vehicle-details" element={<RiderVehicleDetails />} />
-<Route path="/rider/pending-approval" element={<RiderPendingApproval />} />
-<Route path="/rider/dashboard" element={<RiderDashboard />} />
-<Route path="/rider/confirm-pickup/:id" element={<RiderConfirmPickup />} />
-<Route path="/rider/laundry-dropoff/:id" element={<RiderLaundryDropoff />} />
-<Route path="/rider/confirm-delivery/:id" element={<RiderConfirmDelivery />} />
-<Route path="/rider/profile" element={<RiderProfile />} />
-<Route path="/rider/earnings" element={<RiderEarnings />} />
+        <Route path="/rider/vehicle-details" element={<RiderVehicleDetails />} />
+        <Route path="/rider/pending-approval" element={<RiderPendingApproval />} />
+        <Route path="/rider/dashboard" element={<RiderDashboard />} />
+        <Route path="/rider/confirm-pickup/:id" element={<RiderConfirmPickup />} />
+        <Route path="/rider/laundry-dropoff/:id" element={<RiderLaundryDropoff />} />
+        <Route path="/rider/confirm-delivery/:id" element={<RiderConfirmDelivery />} />
+        <Route path="/rider/profile" element={<RiderProfile />} />
+        <Route path="/rider/earnings" element={<RiderEarnings />} />
       </Routes>
     </div>
   );

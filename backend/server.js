@@ -9,6 +9,7 @@ const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const { Server } = require("socket.io");
+const mongoose = require("mongoose");
 
 const connectDB = require("./src/config/db.js");
 
@@ -58,6 +59,8 @@ io.on("connection", (socket) => {
   });
 });
 
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
 
@@ -87,6 +90,32 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(globalLimiter);
 
+
+// Health check / home route
+app.get("/", (req, res) => {
+  
+
+  const dbStates = {
+    0: "disconnected",
+    1: "connected",
+    2: "connecting",
+    3: "disconnecting",
+  };
+
+  res.status(200).json({
+    success: true,
+    message: "🚀 Lume Laundry API is running",
+    environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.floor(process.uptime())}s`,
+    database: {
+      status: dbStates[mongoose.connection.readyState] || "unknown",
+      host: mongoose.connection.host || "not connected",
+      name: mongoose.connection.name || "n/a",
+    },
+  });
+});
+
 // ── Routes (uncomment as you build each one) ──────────────────────────────────
 app.use("/api/v1/auth", authLimiter);
 app.use("/api/v1/rider/auth", authLimiter);
@@ -95,14 +124,11 @@ app.use("/api/v1/rider",           require("./src/routes/rider.routes"));
 app.use("/api/v1/orders",          require("./src/routes/order.routes"));
 // app.use("/api/v1/users",           require("./routes/user.routes"));
 app.use("/api/v1",                 require("./src/routes/address.routes"));
-<<<<<<< HEAD
 
 app.use("/api/v1/admin/auth", authLimiter); // reuse your existing auth rate limiter
 app.use("/api/v1/admin/auth", require("./src/routes/admin.auth.routes.js"));
 // app.use("/api/v1/services",        require("./routes/service.routes"));
-=======
 app.use("/api/v1/services",        require("./src/routes/service.routes"));
->>>>>>> 3519fd66b99ac31826e4a02f7c1a7ec9143839de
 
 // app.use("/api/v1/payments",        require("./routes/payment.routes"));
 // app.use("/api/v1/wallet",          require("./routes/wallet.routes"));
@@ -137,6 +163,7 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Lume Laundry API running on port ${PORT}`);
   console.log(`📦 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🔗 Local: http://localhost:${PORT}`);
 });
 
 module.exports = { app, server, io };
