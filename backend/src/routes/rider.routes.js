@@ -70,6 +70,7 @@ router.get("/verification/status", auth, VerifyCtrl.getVerificationStatus);
 // ── Dashboard & Orders ──
 router.get("/dashboard", auth, DashCtrl.getDashboard);
 router.patch("/status", auth, DashCtrl.toggleOnline);
+router.patch("/location", auth, DashCtrl.updateLocation);
 router.post("/orders/:id/accept", auth, DashCtrl.acceptOrder);
 router.post("/orders/:id/skip", auth, DashCtrl.skipOrder);
 

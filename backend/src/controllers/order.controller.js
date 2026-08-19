@@ -1,8 +1,15 @@
 const mongoose = require("mongoose");
 const Order = require("../models/Order");
+const Review = require("../models/Review");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { calculateEstimatedPricing } = require("../services/pricing.service.js");
+
+const RIDER_POPULATE = {
+  path: "rider",
+  select: "name firstName lastName phone rating",
+  populate: { path: "vehicle", select: "vehicleType registrationNumber" },
+};
 
 // Statuses past this point can no longer be cancelled by the customer.
 const NON_CANCELLABLE_STATUSES = [
@@ -119,7 +126,7 @@ exports.getMyOrders = catchAsync(async (req, res, next) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate("rider", "name phone vehicle")
+      .populate(RIDER_POPULATE)
       .lean({ virtuals: true }),
     Order.countDocuments(filter),
   ]);
@@ -152,7 +159,7 @@ exports.getOrder = catchAsync(async (req, res, next) => {
     _id: id,
     customer: req.user._id,
     isDeleted: false,
-  }).populate("rider", "name phone vehicle");
+  }).populate(RIDER_POPULATE);
 
   if (!order) {
     return next(new AppError("Order not found.", 404));
@@ -205,7 +212,16 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
  */
 exports.submitReview = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { rating, comment } = req.body;
+  const {
+    riderRating,
+    riderFeedback,
+    riderTags,
+    laundryRating,
+    laundryFeedback,
+    laundryTags,
+    overallRating,
+    overallFeedback,
+  } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return next(new AppError("Invalid order id.", 400));
@@ -225,13 +241,27 @@ exports.submitReview = catchAsync(async (req, res, next) => {
     return next(new AppError("This order has already been reviewed.", 409));
   }
 
+  const review = await Review.create({
+    order: order._id,
+    customer: req.user._id,
+    rider: order.rider,
+    riderRating,
+    riderFeedback,
+    riderTags,
+    laundryRating,
+    laundryFeedback,
+    laundryTags,
+    overallRating,
+    overallFeedback,
+  });
+
   order.isReviewed = true;
   await order.save();
 
   res.status(200).json({
     success: true,
     message: "Thanks for the feedback!",
-    data: { order, rating, comment },
+    data: { order, review },
   });
 });
 

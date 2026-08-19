@@ -66,8 +66,15 @@ const riderSchema = new mongoose.Schema(
     fcmToken: { type: String, default: null },
     firebaseUid: { type: String, default: null },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+riderSchema.virtual("vehicle", {
+  ref: "Vehicle",
+  localField: "_id",
+  foreignField: "rider",
+  justOne: true,
+});
 
 riderSchema.methods.toSafeObject = function () {
   const obj = this.toObject();
