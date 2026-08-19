@@ -260,3 +260,28 @@ exports.setupProfile = async (req, res) => {
     return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
   }
 };
+
+// ============================
+// PATCH /api/v1/auth/fcm-token
+// Body: { fcmToken } — saves the device's Firebase Cloud Messaging token so
+// push notifications can be delivered. Works for both customers and riders —
+// the `auth` middleware already resolved req.user to the right collection
+// (User or Rider) based on the JWT's role, so a plain save() is enough here.
+// ============================
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+
+    if (!fcmToken || !fcmToken.trim()) {
+      return res.status(400).json({ success: false, message: "fcmToken is required" });
+    }
+
+    req.user.fcmToken = fcmToken.trim();
+    await req.user.save();
+
+    return res.json({ success: true, message: "Device registered for push notifications." });
+  } catch (err) {
+    console.error("updateFcmToken error:", err);
+    return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+  }
+};

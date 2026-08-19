@@ -149,3 +149,62 @@ exports.getMe = async (req, res) => {
     return res.status(500).json({ success: false, message: "Something went wrong." });
   }
 };
+
+// PATCH /api/v1/admin/auth/profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+
+    if (name !== undefined && !name.trim()) {
+      return res.status(400).json({ success: false, message: "Name cannot be empty" });
+    }
+
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
+
+    if (name !== undefined) admin.name = name.trim();
+    if (phone !== undefined) admin.phone = phone.trim();
+    await admin.save();
+
+    return res.json({ success: true, message: "Profile updated.", admin: admin.toSafeObject() });
+  } catch (err) {
+    console.error("updateProfile error:", err);
+    return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+  }
+};
+
+// PATCH /api/v1/admin/auth/change-password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "Current and new password are required" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: "New password must be at least 6 characters" });
+    }
+
+    const admin = await Admin.findById(req.admin.id).select("+password");
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
+
+    const isMatch = await admin.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Current password is incorrect" });
+    }
+
+    admin.password = newPassword; // pre-save hook hashes it
+    // Invalidate other sessions on password change, same as the forgot-password flow
+    admin.refreshTokens = [];
+    await admin.save();
+
+    return res.json({ success: true, message: "Password changed successfully." });
+  } catch (err) {
+    console.error("changePassword error:", err);
+    return res.status(500).json({ success: false, message: "Something went wrong. Please try again." });
+  }
+};

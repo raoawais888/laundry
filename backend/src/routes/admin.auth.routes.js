@@ -7,5 +7,7 @@ router.post("/login", AdminAuth.login);
 router.post("/forgot-password", AdminAuth.forgotPassword);
 router.post("/reset-password", AdminAuth.resetPassword);
 router.get("/me", adminAuth, AdminAuth.getMe);
+router.patch("/profile", adminAuth, AdminAuth.updateProfile);
+router.patch("/change-password", adminAuth, AdminAuth.changePassword);
 
 module.exports = router;

@@ -48,6 +48,10 @@ const riderSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    // Maintained by Review's post-save hook whenever a rider review is submitted
+    rating: { type: Number, min: 1, max: 5 },
+    ratingCount: { type: Number, default: 0 },
+
     // Dashboard state (Image 6)
     isOnline: { type: Boolean, default: false },
     currentLocation: {
@@ -59,6 +63,7 @@ const riderSchema = new mongoose.Schema(
     isPhoneVerified: { type: Boolean, default: false },
     isProfileComplete: { type: Boolean, default: false },
     lastLoginAt: { type: Date },
+    fcmToken: { type: String, default: null },
   },
   { timestamps: true }
 );
@@ -66,6 +71,7 @@ const riderSchema = new mongoose.Schema(
 riderSchema.methods.toSafeObject = function () {
   const obj = this.toObject();
   delete obj.__v;
+  delete obj.fcmToken;
   return obj;
 };
 

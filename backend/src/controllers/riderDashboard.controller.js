@@ -65,7 +65,7 @@ exports.acceptOrder = async (req, res) => {
   try {
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, status: "available" },
-      { status: "accepted", rider: req.user.id },
+      { status: "accepted", rider: req.user.id, riderAssignedAt: new Date() },
       { new: true }
     );
     if (!order) return res.status(409).json({ success: false, message: "Order no longer available" });

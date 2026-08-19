@@ -127,6 +127,7 @@ app.use("/api/v1",                 require("./src/routes/address.routes"));
 
 app.use("/api/v1/admin/auth", authLimiter); // reuse your existing auth rate limiter
 app.use("/api/v1/admin/auth", require("./src/routes/admin.auth.routes.js"));
+app.use("/api/v1/admin", require("./src/routes/admin.routes.js"));
 // app.use("/api/v1/services",        require("./routes/service.routes"));
 app.use("/api/v1/services",        require("./src/routes/service.routes"));
 

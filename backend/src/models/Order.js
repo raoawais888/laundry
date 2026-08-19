@@ -5,6 +5,7 @@ const orderSchema = new mongoose.Schema(
 
     customer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     rider: { type: mongoose.Schema.Types.ObjectId, ref: "Rider", index: true },
+    riderAssignedAt: { type: Date },
 
     pickupAddress: { /* your existing shape */ type: Object },
     deliveryAddress: { type: Object },

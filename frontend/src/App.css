@@ -740,6 +740,16 @@
           text-decoration: underline;
           cursor: pointer;
         }
+        .lume-link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          color: #2B35AF;
+          font-weight: 600;
+          text-decoration: underline;
+          cursor: pointer;
+          font-size: inherit;
+        }
 
         /* ── Footer ── */
         .lume-footer {

@@ -7,11 +7,17 @@ const AuthCtrl = require("../controllers/riderAuth.controller.js");
 const VerifyCtrl = require("../controllers/riderVerification.controller.js");
 const DashCtrl = require("../controllers/riderDashboard.controller.js");
 const ProfileCtrl = require("../controllers/riderProfile.controller.js");
+// updateFcmToken is role-agnostic (the `auth` middleware already resolves
+// req.user to a Rider doc for rider tokens), so it's reused as-is here rather
+// than duplicated — this alias exists purely so the rider app can call a
+// /rider/* path consistent with the rest of this router.
+const { updateFcmToken } = require("../controllers/auth.controller.js");
 
 // ── Auth & Profile setup ──
 router.post("/auth/send-otp", AuthCtrl.sendOtp);
 router.post("/auth/verify-otp", AuthCtrl.verifyOtp);
 router.post("/profile/setup", auth, upload.single("avatar"), AuthCtrl.setupProfile);
+router.patch("/fcm-token", auth, updateFcmToken);
 
 console.log("DashCtrl methods:", Object.keys(DashCtrl));
 // ── Verification (onboarding docs) ──

@@ -1,5 +1,6 @@
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
+const { getMessaging } = require("firebase-admin/messaging");
 
 let serviceAccount;
 
@@ -16,5 +17,6 @@ const app = initializeApp({
 });
 
 const adminAuth = getAuth(app);
+const adminMessaging = getMessaging(app);
 
-module.exports = { adminAuth };
+module.exports = { adminAuth, adminMessaging };

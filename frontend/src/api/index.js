@@ -1,16 +1,28 @@
 import axios from "axios";
 
+const API_ORIGIN =
+  // process.env.REACT_APP_API_URL || "https://doorlaundry-d928b43be380.herokuapp.com"
+  process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 const api = axios.create({
-  baseURL: `${
-    process.env.REACT_APP_API_URL || "https://doorlaundry-d928b43be380.herokuapp.com"
-    // process.env.REACT_APP_API_URL || "http://localhost:5000"
-  }/api/v1`,
+  baseURL: `${API_ORIGIN}/api/v1`,
 });
 
-// Attach JWT token to every request automatically
+// Uploaded files (rider documents, order photos, avatars, ...) are served
+// from the backend's /uploads static route directly, not under /api/v1 —
+// the DB only stores the relative path (e.g. "/uploads/profile/xyz.jpg").
+export const fileUrl = (path) => (path ? `${API_ORIGIN}${path}` : null);
+
+// Attach JWT token to every request automatically. Admin routes carry a
+// separate session (localStorage "adminToken") from the customer/rider
+// session ("token"), so route the header by which namespace the request
+// is actually hitting instead of always sending the customer token.
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const isAdminRequest = config.url?.startsWith("/admin");
+    const token = isAdminRequest
+      ? localStorage.getItem("adminToken")
+      : localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -35,6 +47,12 @@ export const adminResetPassword = (email, code, newPassword) =>
 
 export const adminGetMe = () =>
   api.get("/admin/auth/me");
+
+export const adminUpdateProfile = (data) =>
+  api.patch("/admin/auth/profile", data);
+
+export const adminChangePassword = (currentPassword, newPassword) =>
+  api.patch("/admin/auth/change-password", { currentPassword, newPassword });
 // ─────────────────────────────────────────────────────────────
 // AUTH
 // ─────────────────────────────────────────────────────────────
@@ -217,7 +235,105 @@ export const trackRider = (orderId) =>
 export const getDashboard = () =>
   api.get("/admin/dashboard");
 
+// ── Admin Orders ────────────────────────────────────────────────────────────
 
+export const adminGetOrders = (params) =>
+  api.get("/admin/orders", { params });
+
+export const adminGetOrderById = (id) =>
+  api.get(`/admin/orders/${id}`);
+
+export const adminGetAssignableRiders = () =>
+  api.get("/admin/orders/assignable-riders");
+
+export const adminUpdateOrderStatus = (id, status) =>
+  api.patch(`/admin/orders/${id}/status`, { status });
+
+export const adminAssignRider = (id, riderId) =>
+  api.patch(`/admin/orders/${id}/assign-rider`, { riderId });
+
+export const adminCancelOrder = (id, reason) =>
+  api.patch(`/admin/orders/${id}/cancel`, { reason });
+
+// ── Admin Users ─────────────────────────────────────────────────────────────
+
+export const adminGetUsers = (params) =>
+  api.get("/admin/users", { params });
+
+export const adminGetUserById = (id) =>
+  api.get(`/admin/users/${id}`);
+
+export const adminUpdateUserStatus = (id, status) =>
+  api.patch(`/admin/users/${id}/status`, { status });
+
+export const adminDeleteUser = (id) =>
+  api.delete(`/admin/users/${id}`);
+
+// ── Admin Riders ────────────────────────────────────────────────────────────
+
+export const adminGetRiders = (params) =>
+  api.get("/admin/riders", { params });
+
+export const adminGetRiderById = (id) =>
+  api.get(`/admin/riders/${id}`);
+
+export const adminUpdateRiderStatus = (id, accountStatus) =>
+  api.patch(`/admin/riders/${id}/status`, { accountStatus });
+
+// ── Admin Payments ──────────────────────────────────────────────────────────
+
+export const adminGetPayments = (params) =>
+  api.get("/admin/payments", { params });
+
+export const adminGetPaymentStats = () =>
+  api.get("/admin/payments/stats");
+
+// ── Admin Reviews ───────────────────────────────────────────────────────────
+
+export const adminGetReviews = (params) =>
+  api.get("/admin/reviews", { params });
+
+export const adminGetReviewStats = () =>
+  api.get("/admin/reviews/stats");
+
+export const adminUpdateReviewVisibility = (id, isVisible) =>
+  api.patch(`/admin/reviews/${id}/visibility`, { isVisible });
+
+export const adminReplyToReview = (id, adminReply) =>
+  api.patch(`/admin/reviews/${id}/reply`, { adminReply });
+
+export const adminDeleteReview = (id) =>
+  api.delete(`/admin/reviews/${id}`);
+
+// ── Admin Services ──────────────────────────────────────────────────────────
+
+export const adminGetServices = (params) =>
+  api.get("/admin/services", { params });
+
+export const adminCreateService = (data) =>
+  api.post("/admin/services", data);
+
+export const adminUpdateService = (id, data) =>
+  api.patch(`/admin/services/${id}`, data);
+
+export const adminDeleteService = (id) =>
+  api.delete(`/admin/services/${id}`);
+
+// ── Admin Notifications ─────────────────────────────────────────────────────
+
+export const adminGetNotifications = (params) =>
+  api.get("/admin/notifications", { params });
+
+export const adminGetNotificationStats = () =>
+  api.get("/admin/notifications/stats");
+
+export const adminSendBroadcast = (data) =>
+  api.post("/admin/notifications/broadcast", data);
+
+// ── Admin Reports ───────────────────────────────────────────────────────────
+
+export const adminGetReports = (params) =>
+  api.get("/admin/reports", { params });
 
 // ─────────────────────────────────────────────────────────────
 // RIDER AUTH
