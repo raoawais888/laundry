@@ -222,7 +222,7 @@ exports.setupProfile = async (req, res) => {
     }
 
     if (req.file) {
-      user.avatar = `/uploads/profile/${req.file.filename}`;
+      user.avatar = { url: req.file.path, publicId: req.file.filename };
     }
 
     user.isProfileComplete = true;

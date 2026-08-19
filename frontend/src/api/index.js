@@ -8,10 +8,16 @@ const api = axios.create({
   baseURL: `${API_ORIGIN}/api/v1`,
 });
 
-// Uploaded files (rider documents, order photos, avatars, ...) are served
-// from the backend's /uploads static route directly, not under /api/v1 —
-// the DB only stores the relative path (e.g. "/uploads/profile/xyz.jpg").
-export const fileUrl = (path) => (path ? `${API_ORIGIN}${path}` : null);
+// Uploaded files (rider documents, order photos, avatars, ...) are now
+// stored on Cloudinary, so the DB holds an absolute "https://res.cloudinary.com/..."
+// URL — pass those through unchanged. Older records created before this
+// migration still hold a relative "/uploads/profile/xyz.jpg" path served by
+// the backend itself, so still prefix those with the API origin.
+export const fileUrl = (path) => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${API_ORIGIN}${path}`;
+};
 
 // Attach JWT token to every request automatically. Admin routes carry a
 // separate session (localStorage "adminToken") from the customer/rider
@@ -339,11 +345,8 @@ export const adminGetReports = (params) =>
 // RIDER AUTH
 // ─────────────────────────────────────────────────────────────
 
-export const riderSendOtp = (phone) =>
-  api.post("/rider/auth/send-otp", { phone });
-
-export const riderVerifyOtp = (phone, otp) =>
-  api.post("/rider/auth/verify-otp", { phone, otp });
+export const riderFirebaseLogin = (idToken) =>
+  api.post("/rider/auth/firebase-login", { idToken });
 
 export const riderSetupProfile = (data) =>
   api.post("/rider/profile/setup", data);

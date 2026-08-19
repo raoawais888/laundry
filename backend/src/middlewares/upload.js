@@ -1,17 +1,14 @@
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary-v2");
+const cloudinary = require("../config/Cloudinary");
 
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        cb(null, "uploads/profile");
-    },
-
-    filename(req, file, cb) {
-        cb(
-            null,
-            Date.now() + "-" + Math.round(Math.random() * 1e9) +
-            path.extname(file.originalname)
-        );
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        // Groups uploads by field name (avatar, licenseFront, selfie, ...)
+        // so the Cloudinary dashboard mirrors what each file actually is.
+        folder: (req, file) => `doorlaundry/${file.fieldname}`,
+        resource_type: "image",
     },
 });
 

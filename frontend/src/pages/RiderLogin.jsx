@@ -1,33 +1,63 @@
 import { useState } from "react";
-import { riderSendOtp } from "../api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const RiderLogin = () => {
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
+    }
+    return window.recaptchaVerifier;
+  };
+
   const handleSendOtp = async () => {
-    if (!phone.trim()) {
+    const trimmed = phone.trim();
+
+    if (!trimmed) {
       toast.error("Please enter your phone number.");
+      return;
+    }
+
+    // Firebase needs E.164 format: +61412345678
+    if (!/^\+\d{8,15}$/.test(trimmed)) {
+      toast.error("Enter number with country code, e.g. +61412345678");
       return;
     }
 
     try {
       setLoading(true);
 
-      const { data } = await riderSendOtp(phone);
+      const appVerifier = setupRecaptcha();
+      const confirmationResult = await signInWithPhoneNumber(
+        auth,
+        trimmed,
+        appVerifier
+      );
 
-      console.log("OTP Response:", data);
+      // Save confirmation so RiderVerifyOtp can call .confirm()
+      window.confirmationResult = confirmationResult;
 
-      toast.success(data.message || "OTP sent successfully.");
-
-      // Rider isn't authenticated until OTP is verified — token/rider
-      // are stored on the verify-otp screen, not here.
-      navigate("/rider/verify-otp", { state: { phone } });
+      toast.success("OTP sent successfully.");
+      navigate("/rider/verify-otp", { state: { phone: trimmed } });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to send OTP.");
+      console.error(error);
+      toast.error(error.message || "Failed to send OTP.");
+
+      // Reset recaptcha so the user can retry
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
     } finally {
       setLoading(false);
     }
@@ -89,6 +119,9 @@ const RiderLogin = () => {
             >
               {loading ? "Sending..." : "Continue with OTP"}
             </button>
+
+            {/* Invisible reCAPTCHA mount point — required by Firebase */}
+            <div id="recaptcha-container"></div>
 
             <div className="lume-or">
               <div className="lume-or-line" />

@@ -2,9 +2,10 @@ const Rider = require("../models/Rider");
 const RiderDocument = require("../models/RiderDocument");
 const Vehicle = require("../models/Vehicle");
 
-// Helper: pull uploaded file paths by field name from multer .fields()
+// Helper: pull the Cloudinary secure URL by field name from multer .fields()
+// (CloudinaryStorage exposes it as file.path — see middlewares/upload.js)
 const filePath = (req, field) =>
-  req.files?.[field]?.[0] ? `/uploads/profile/${req.files[field][0].filename}` : undefined;
+  req.files?.[field]?.[0] ? req.files[field][0].path : undefined;
 
 // POST /api/v1/rider/verification/id  (Image 11 — license, passport, selfie, medicare)
 exports.uploadIdVerification = async (req, res) => {
@@ -122,7 +123,7 @@ exports.uploadVehicle = async (req, res) => {
       return res.status(400).json({ success: false, message: "Vehicle type and registration number are required" });
     }
 
-    const vehiclePhotos = (req.files?.vehiclePhotos || []).map((f) => `/uploads/profile/${f.filename}`);
+    const vehiclePhotos = (req.files?.vehiclePhotos || []).map((f) => f.path);
 
     await Vehicle.findOneAndUpdate(
       { rider: rider._id },

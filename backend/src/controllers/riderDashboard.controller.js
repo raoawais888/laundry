@@ -3,7 +3,7 @@ const Order = require("../models/Order");
 const Earning = require("../models/Earning");
 
 const filePath = (req, field) =>
-  req.files?.[field]?.[0] ? `/uploads/profile/${req.files[field][0].filename}` : undefined;
+  req.files?.[field]?.[0] ? req.files[field][0].path : undefined;
 
 // PATCH /api/v1/rider/status  (Image 6 — Online/Offline toggle)
 // PATCH /api/v1/rider/status
@@ -96,7 +96,7 @@ exports.confirmPickup = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid pickup OTP" });
     }
 
-    const photos = (req.files?.photos || []).map((f) => `/uploads/profile/${f.filename}`);
+    const photos = (req.files?.photos || []).map((f) => f.path);
 
     order.status = "picked_up";
     order.pickup = {

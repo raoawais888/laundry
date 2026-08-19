@@ -64,6 +64,7 @@ const riderSchema = new mongoose.Schema(
     isProfileComplete: { type: Boolean, default: false },
     lastLoginAt: { type: Date },
     fcmToken: { type: String, default: null },
+    firebaseUid: { type: String, default: null },
   },
   { timestamps: true }
 );

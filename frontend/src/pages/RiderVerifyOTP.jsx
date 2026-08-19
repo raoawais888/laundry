@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
-import { riderVerifyOtp, riderSendOtp } from "../api";
+import { riderFirebaseLogin } from "../api";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const OTP_LENGTH = 6;
 
@@ -65,12 +67,23 @@ const RiderVerifyOtp = ({ onVerified }) => {
       return;
     }
 
+    if (!window.confirmationResult) {
+      toast.error("Session expired. Please request a new OTP.");
+      navigate("/rider/login");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const { data } = await riderVerifyOtp(phone, code);
+      // 1. Verify OTP with Firebase
+      const result = await window.confirmationResult.confirm(code);
 
-      console.log(data);
+      // 2. Get Firebase ID token
+      const idToken = await result.user.getIdToken();
+
+      // 3. Send token to your backend → get your own JWT + rider
+      const { data } = await riderFirebaseLogin(idToken);
 
       if (data.token) {
         localStorage.setItem("token", data.token);
@@ -81,7 +94,7 @@ const RiderVerifyOtp = ({ onVerified }) => {
         localStorage.setItem("rider", JSON.stringify(data.rider));
       }
 
-      toast.success(data.message || "Number verified successfully.");
+      toast.success("Number verified successfully.");
 
       // Route based on onboarding progress: new riders go to profile setup,
       // returning approved riders go straight to the dashboard.
@@ -98,21 +111,54 @@ const RiderVerifyOtp = ({ onVerified }) => {
         onVerified(data);
       }
     } catch (error) {
-      console.log(error.response);
-      toast.error(error.response?.data?.message || "Something went wrong");
+      console.error(error);
+
+      // Firebase throws its own error codes for wrong/expired codes
+      if (error.code === "auth/invalid-verification-code") {
+        toast.error("Invalid code. Please check and try again.");
+      } else if (error.code === "auth/code-expired") {
+        toast.error("Code expired. Please resend a new OTP.");
+      } else {
+        toast.error(error.response?.data?.message || error.message || "Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
+    if (!phone) {
+      toast.error("Missing phone number. Please go back and try again.");
+      return;
+    }
+
     try {
-      await riderSendOtp(phone);
+      // Firebase needs a fresh reCAPTCHA for each resend
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
+
+      const confirmationResult = await signInWithPhoneNumber(
+        auth,
+        phone,
+        window.recaptchaVerifier
+      );
+
+      window.confirmationResult = confirmationResult;
+
       toast.success("OTP resent successfully.");
       setOtp(Array(OTP_LENGTH).fill(""));
       focusInput(0);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Could not resend OTP.");
+      console.error(error);
+      toast.error(error.message || "Could not resend OTP.");
     }
   };
 
@@ -193,6 +239,9 @@ const RiderVerifyOtp = ({ onVerified }) => {
               {loading ? "Verifying..." : "Continue with OTP"}
             </button>
           </div>
+
+          {/* reCAPTCHA mount point for resend */}
+          <div id="recaptcha-container"></div>
 
         </div>
       </div>

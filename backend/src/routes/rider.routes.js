@@ -14,8 +14,7 @@ const ProfileCtrl = require("../controllers/riderProfile.controller.js");
 const { updateFcmToken } = require("../controllers/auth.controller.js");
 
 // ── Auth & Profile setup ──
-router.post("/auth/send-otp", AuthCtrl.sendOtp);
-router.post("/auth/verify-otp", AuthCtrl.verifyOtp);
+router.post("/auth/firebase-login", AuthCtrl.firebaseLogin);
 router.post("/profile/setup", auth, upload.single("avatar"), AuthCtrl.setupProfile);
 router.patch("/fcm-token", auth, updateFcmToken);
 

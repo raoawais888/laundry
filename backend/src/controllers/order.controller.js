@@ -28,7 +28,7 @@ const NON_CANCELLABLE_STATUSES = [
  * photo files under the "photos" field, handled by uploadOrderPhotos +
  * parseMultipartOrderFields middleware before this runs). Either way, by
  * the time this controller runs, req.body fields are real objects/numbers,
- * and req.files (if present) holds the local disk upload results.
+ * and req.files (if present) holds the Cloudinary upload results.
  */
 exports.createOrder = catchAsync(async (req, res, next) => {
     console.log(req.body);
@@ -54,11 +54,12 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     couponDiscount,
   });
 
-  // req.files is populated by multer's local disk storage when the request
+  // req.files is populated by multer's Cloudinary storage when the request
   // was multipart/form-data with files attached. If the request was plain
   // JSON (no photos), req.files is undefined and photos is just an empty array.
   const photos = (req.files || []).map((file) => ({
-    url: `/uploads/orders/${file.filename}`,
+    url: file.path,
+    publicId: file.filename,
     uploadedBy: "customer",
   }));
 

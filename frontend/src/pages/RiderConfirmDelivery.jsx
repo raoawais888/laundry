@@ -84,7 +84,7 @@ const RiderConfirmDelivery = () => {
           <h3 className="rider-card-title">Delivery Detail</h3>
           <div className="rider-customer">
             <img className="rider-customer-avatar"
-              src={order.customer?.avatar || "https://placehold.co/56x56?text=?"} alt="" />
+              src={order.customer?.avatar?.url || order.customer?.avatar || "https://placehold.co/56x56?text=?"} alt="" />
             <div>
               <h4 className="rider-customer-name">{order.customer?.name || "Customer"}</h4>
               <p className="rider-customer-address">{order.customer?.address}</p>
